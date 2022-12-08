@@ -9,4 +9,28 @@ output:
 
 
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+## Introduction
+Welcome to my project! I use Reddit a lot and while there's plenty of interesting, new information there's also a lot of posts that feel...samey? I recently checked the subreddit r/science and felt like I was seeing double as I scrolled past pop-sci articles from sites like psypost.com with clickbaity titles like "Study shows when comparing students who have identical subject-specific competence, teachers are more likely to give higher grades to girls." These are interesting, I guess, and clearly popular if they're making it to the top of my feed, but they feel a bit like [a parody of science journalism.](https://www.smbc-comics.com/comic/science-journalism)
+
+I know from experience that it's really, really hard to communicate science concepts to a general audience. Heck, it's hard to communicate science concepts to other scientists if their specialty is different from yours. The gap between how scientists communicate with each other about science and how nonspecialists communicate with each other about science is massive. That's why [videos like this one](https://www.youtube.com/watch?v=hYip_Vuv8J0) are so impressive.
+
+So much is lost in translation, understandably, and it makes sense that people-centered science stories would fare better on social media than highly-technical journal articles. Then there's the issue of open journal access, which is a whole mess. And r/science is a general forum in itself; more specialized science subreddits exist and do a great job of fostering discussion. 
+
+Still, I wanted to see what kinds of posts made it to the top of r/science: what topics interest the average reddit user the most? Are pop-psychology articles really so overrepresented, or am I just  mad about "Attractive female students no longer earned higher grades when classes moved online during COVID-19" (a highly flawed and since-disowned study) being the top post of the WHOLE YEAR?
+
+## Part 1: About this project
+Question: What are the characteristics of the top posts on r/science?
+
+My hunch: pop-psy is overrepresented, physical science is underrepresented, and the topics in general are significantly different from the topics of leading scientific journals.
+
+My back-of-the-envelope calculations: I'm only looking at the top 100 posts per month, year, and all-time. Posts are ranked based on their "score" (or, number of upvotes). I counted more than 40 posts today, meaning that my sample represents the top 8% of posts this month, the top 0.6% of posts this year, and the top 0.01% of all posts since 2015 (this is certainly an overestimation as posting frequency has also increased over time as the site grows, but even so I'm confident that I'm looking at the top-of-the-top here).
+
+My limitations: In comparing top posts to each other, I'm working with a very small sample. A better approach would be a longitudinal study of top posts by month over a 12-month period. I'm hoping that looking at three time periods (past-month, past-year, and all-time) helps me see if any topics are amplified or diminished by selection (upvoting) over time; only ___ of this month's top posts make the top-year list, and only ___ makes the top all-time list. 
+
+My limitations, continued: I have a lot of data points in the form of title words, but analyzing word frequency and significance is tricky, because a chi-2 assumes a normal distribution while language follows a .... (also, we're just talking about science posts, so there's additional selection muddying things). I don't know if I can manage a thorough statistical analysis of this data set, but I can try.
+
+Potential biases: You may have noticed that I have a not-so-flattering take on some of the top posts on r/science. I come from an Earth science and chemistry background, and I've been a science teacher for 7 years, so make of that what you will.
+
+My goals: A tidy wordcloud of title words compared with titles from scientific journals in the last month. A statistical analysis of my dataset wherein, hopefully, some significant trends appear and I either pat myself on the back or eat crow. Strong documentation of my work so that it's reproducible.
+
+## Part 2: Data scraping
