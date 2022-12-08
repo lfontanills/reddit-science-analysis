@@ -37,4 +37,4 @@ My goals: A tidy wordcloud of title words compared with titles from scientific j
 
 ## Part 2: Data scraping
 
-We're starting off in Python, because [PRAW](https://praw.readthedocs.io/en/stable/) (Reddit's API Wrapper) uses Python. Most of my code comes straight from [here](https://www.geeksforgeeks.org/scraping-reddit-using-python/) 
+We're starting off in Python, because PRAW (Reddit's API Wrapper) uses Python. Most of my code comes straight from [here](https://www.geeksforgeeks.org/scraping-reddit-using-python/). To run this code yourself, you'll need to follow the instructions [here](https://praw.readthedocs.io/en/stable/) and input your own user information.
