@@ -34,3 +34,220 @@ Potential biases: You may have noticed that I have a not-so-flattering take on s
 My goals: A tidy wordcloud of title words compared with titles from scientific journals in the last month. A statistical analysis of my dataset wherein, hopefully, some significant trends appear and I either pat myself on the back or eat crow. Strong documentation of my work so that it's reproducible.
 
 ## Part 2: Data scraping
+
+We're starting off in Python, because PRAW (Reddit's API Wrapper) uses Python. Most of my code comes straight from [here](https://www.geeksforgeeks.org/scraping-reddit-using-python/). To run this code yourself, you'll need to follow the instructions [here](https://praw.readthedocs.io/en/stable/) and input your own user information.
+
+Step 1. Import packages
+
+```python
+# import packages
+import praw
+import pandas
+```
+
+Step 2: create a read-only instance in PRAW with your personal credentials. 
+
+```python
+# read-only instance
+reddit_read_only = praw.Reddit(
+    # input project information
+    client_id='1qm6oGK-TDENrxYDwMW-8g',
+    client_secret='WGhXW9c0xmvPAaejNAGMH7xjZliTDQ',
+    user_agent='burritoparade'
+)
+```
+
+
+Step 3: Check that everything is working printing getting subreddit information
+
+```python
+
+# extract subreddit information
+subreddit = reddit_read_only.subreddit("science")
+
+# display subreddit name
+print("Display Name:", subreddit.display_name)
+
+# display subreddit title
+```
+
+```
+## Display Name: science
+```
+
+```python
+print("Title:", subreddit.title)
+
+# display subreddit description
+```
+
+```
+## Title: Reddit Science
+```
+
+```python
+print("Description:", subreddit.description)
+```
+
+```
+## Description: # [Submission Rules](https://www.reddit.com/r/science/wiki/rules#wiki_submission_rules)
+## 
+## 1. Directly link to published peer-reviewed research or media summary
+## 2. No summaries of summaries, re-hosted press releases, or reposts
+## 3. No editorialized, sensationalized, or biased titles
+## 4. Research must be less than 6 months old
+## 5. No blogspam, images, videos, or infographics
+## 6. All submissions must have flair assigned
+## 
+## # [Comment Rules](https://www.reddit.com/r/science/wiki/rules#wiki_comment_rules)
+## 
+## 1. No off-topic comments, memes, low-effort comments or jokes
+## 2. No abusive or offensive comments
+## 3. Non-professional personal anecdotes will be removed
+## 4. Criticism of published work should assume basic competence of the researchers and reviewers
+## 5. Comments dismissing established findings and fields of science must provide evidence
+## 6. No medical advice
+## 7. Repeat or flagrant offenders will be banned
+## 
+## ---
+## 
+## 
+## 
+## ## [New to reddit? Click here!](https://www.reddit.com/wiki/reddit_101)
+## 
+## ## [Get flair in /r/science](https://www.reddit.com/r/science/wiki/flair)
+## 
+## ## [Previous Science AMA's](https://www.reddit.com/r/science/search?q=flair%3A%27AMA%27&sort=new&restrict_sr=on)
+## 
+## > 
+## - **filter by field**
+## - [Animal Sci.](https://goo.gl/STb58P)
+## - [Anthropology](https://goo.gl/janxGX)
+## - [Astronomy](https://goo.gl/dTqMXH)
+## - [Biology](https://goo.gl/m4QZbs)
+## - [Cancer](https://goo.gl/rjLfaK)
+## - [Chemistry](https://goo.gl/Jjxj3P)
+## - [Computer Sci.](https://goo.gl/Xpvh6i)
+## - [Engineering](https://goo.gl/iFi3Gu)
+## - [Environment](https://goo.gl/oedACs)
+## - [Epidemiology](https://goo.gl/VmmsA9)
+## - [Geology](https://goo.gl/J4xdyq)
+## - [Health](https://goo.gl/kWcS6m)
+## - [Mathematics](https://goo.gl/8SMPsP)
+## - [Medicine](https://goo.gl/kyPRCD)
+## - [Nanoscience](https://goo.gl/UmxqQd)
+## - [Neuroscience](https://goo.gl/AphkXU)
+## - [Paleontology](https://goo.gl/iMgZoU)
+## - [Physics](https://goo.gl/1ZrRAu)
+## - [Psychology](https://goo.gl/J2vKF1)
+## - [Social Sci.](https://goo.gl/CftfVE)
+## - [Sci Discussion](https://goo.gl/dGn6F8)
+## 
+## ---
+## 
+## [](#/RES_SR_Config/NightModeCompatible)
+```
+
+Step 4: Scrape post information from the past month.
+
+```python
+# get top posts this from time period
+posts = subreddit.top("month")
+```
+
+```
+## <string>:1: DeprecationWarning: Positional arguments for 'BaseListingMixin.top' will no longer be supported in PRAW 8.
+## Call this function with 'time_filter' as a keyword argument.
+```
+
+```python
+posts_dict = { 
+    "ID": [],
+    "Created UTC": [],
+    "Post URL": [],
+    "Title": [],
+    "Link flair text": [],
+    "Score": [],
+    "Num comments": [],
+    "Upvote ratio": []
+}
+
+for post in posts:
+    posts_dict["ID"].append(post.id)
+    posts_dict["Created UTC"].append(post.created_utc)
+    posts_dict["Post URL"].append(post.url)
+    posts_dict["Title"].append(post.title)
+    posts_dict["Link flair text"].append(post.link_flair_text)
+    posts_dict["Score"].append(post.score)
+    posts_dict["Num comments"].append(post.num_comments)
+    posts_dict["Upvote ratio"].append(post.upvote_ratio)
+
+top_posts_month = pandas.DataFrame(posts_dict)
+
+top_posts_month.to_csv("Top Posts Month.csv")
+```
+
+Step 5: Now repeat for year and all-time
+
+```python
+# get top posts - past year
+posts = subreddit.top("year")
+
+posts_dict = { 
+    "ID": [],
+    "Created UTC": [],
+    "Post URL": [],
+    "Title": [],
+    "Link flair text": [],
+    "Score": [],
+    "Num comments": [],
+    "Upvote ratio": []
+}
+
+for post in posts:
+    posts_dict["ID"].append(post.id)
+    posts_dict["Created UTC"].append(post.created_utc)
+    posts_dict["Post URL"].append(post.url)
+    posts_dict["Title"].append(post.title)
+    posts_dict["Link flair text"].append(post.link_flair_text)
+    posts_dict["Score"].append(post.score)
+    posts_dict["Num comments"].append(post.num_comments)
+    posts_dict["Upvote ratio"].append(post.upvote_ratio)
+
+top_posts_year = pandas.DataFrame(posts_dict)
+
+top_posts_year.to_csv("Top Posts Year.csv")
+```
+
+```python
+
+# get top posts - all time
+posts = subreddit.top("all")
+
+posts_dict = { 
+    "ID": [],
+    "Created UTC": [],
+    "Post URL": [],
+    "Title": [],
+    "Link flair text": [],
+    "Score": [],
+    "Num comments": [],
+    "Upvote ratio": []
+}
+
+for post in posts:
+    posts_dict["ID"].append(post.id)
+    posts_dict["Created UTC"].append(post.created_utc)
+    posts_dict["Post URL"].append(post.url)
+    posts_dict["Title"].append(post.title)
+    posts_dict["Link flair text"].append(post.link_flair_text)
+    posts_dict["Score"].append(post.score)
+    posts_dict["Num comments"].append(post.num_comments)
+    posts_dict["Upvote ratio"].append(post.upvote_ratio)
+
+top_posts_all = pandas.DataFrame(posts_dict)
+
+top_posts_all.to_csv("Top Posts All.csv")
+```
+
+We did it!

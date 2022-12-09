@@ -38,3 +38,132 @@ My goals: A tidy wordcloud of title words compared with titles from scientific j
 ## Part 2: Data scraping
 
 We're starting off in Python, because PRAW (Reddit's API Wrapper) uses Python. Most of my code comes straight from [here](https://www.geeksforgeeks.org/scraping-reddit-using-python/). To run this code yourself, you'll need to follow the instructions [here](https://praw.readthedocs.io/en/stable/) and input your own user information.
+
+Step 1. Import packages
+```{python import packages}
+# import packages
+import praw
+import pandas
+```
+
+Step 2: create a read-only instance in PRAW with your personal credentials. 
+```{python project information}
+# read-only instance
+reddit_read_only = praw.Reddit(
+    # input project information
+    client_id='1qm6oGK-TDENrxYDwMW-8g',
+    client_secret='WGhXW9c0xmvPAaejNAGMH7xjZliTDQ',
+    user_agent='burritoparade'
+)
+```
+
+
+Step 3: Check that everything is working printing getting subreddit information
+```{python subreddit info}
+
+# extract subreddit information
+subreddit = reddit_read_only.subreddit("science")
+
+# display subreddit name
+print("Display Name:", subreddit.display_name)
+
+# display subreddit title
+print("Title:", subreddit.title)
+
+# display subreddit description
+print("Description:", subreddit.description)
+```
+
+Step 4: Scrape post information from the past month.
+```{python}
+# get top posts this from time period
+posts = subreddit.top("month")
+
+posts_dict = { 
+    "ID": [],
+    "Created UTC": [],
+    "Post URL": [],
+    "Title": [],
+    "Link flair text": [],
+    "Score": [],
+    "Num comments": [],
+    "Upvote ratio": []
+}
+
+for post in posts:
+    posts_dict["ID"].append(post.id)
+    posts_dict["Created UTC"].append(post.created_utc)
+    posts_dict["Post URL"].append(post.url)
+    posts_dict["Title"].append(post.title)
+    posts_dict["Link flair text"].append(post.link_flair_text)
+    posts_dict["Score"].append(post.score)
+    posts_dict["Num comments"].append(post.num_comments)
+    posts_dict["Upvote ratio"].append(post.upvote_ratio)
+
+top_posts_month = pandas.DataFrame(posts_dict)
+
+top_posts_month.to_csv("Top Posts Month.csv")
+```
+
+Step 5: Now repeat for year and all-time
+```{python}
+# get top posts - past year
+posts = subreddit.top("year")
+
+posts_dict = { 
+    "ID": [],
+    "Created UTC": [],
+    "Post URL": [],
+    "Title": [],
+    "Link flair text": [],
+    "Score": [],
+    "Num comments": [],
+    "Upvote ratio": []
+}
+
+for post in posts:
+    posts_dict["ID"].append(post.id)
+    posts_dict["Created UTC"].append(post.created_utc)
+    posts_dict["Post URL"].append(post.url)
+    posts_dict["Title"].append(post.title)
+    posts_dict["Link flair text"].append(post.link_flair_text)
+    posts_dict["Score"].append(post.score)
+    posts_dict["Num comments"].append(post.num_comments)
+    posts_dict["Upvote ratio"].append(post.upvote_ratio)
+
+top_posts_year = pandas.DataFrame(posts_dict)
+
+top_posts_year.to_csv("Top Posts Year.csv")
+```
+```{python}
+
+# get top posts - all time
+posts = subreddit.top("all")
+
+posts_dict = { 
+    "ID": [],
+    "Created UTC": [],
+    "Post URL": [],
+    "Title": [],
+    "Link flair text": [],
+    "Score": [],
+    "Num comments": [],
+    "Upvote ratio": []
+}
+
+for post in posts:
+    posts_dict["ID"].append(post.id)
+    posts_dict["Created UTC"].append(post.created_utc)
+    posts_dict["Post URL"].append(post.url)
+    posts_dict["Title"].append(post.title)
+    posts_dict["Link flair text"].append(post.link_flair_text)
+    posts_dict["Score"].append(post.score)
+    posts_dict["Num comments"].append(post.num_comments)
+    posts_dict["Upvote ratio"].append(post.upvote_ratio)
+
+top_posts_all = pandas.DataFrame(posts_dict)
+
+top_posts_all.to_csv("Top Posts All.csv")
+```
+
+We did it!
