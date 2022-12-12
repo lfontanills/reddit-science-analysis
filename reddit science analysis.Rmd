@@ -43,4 +43,20 @@ You can find my script under scraper.py
 
 ## Part 3: Cleaning
 
+Let's import the data set from last month and have a look around.
+
+```{r}
+library(readr)
+Top_Posts_Month <- read_csv("Top Posts Month.csv")
+
+View(Top_Posts_Month)
+```
+
+
+We see that posts are ranked 0-99 (100 posts). I'd rather have posts ranked 1-100, so I'm going to make a new column called "
+
+```{r}
+Top_Posts_Month$Rank <- Top_Posts_Month$...1 + 1
+```
+
 
