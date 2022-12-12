@@ -3,6 +3,7 @@ library(tidyverse)
 library(lubridate)
 library(ggplot2)
 library(urltools) #package wrangles urls
+library(tidytext) #NLP 
 
 
 # import top posts - last month
@@ -25,4 +26,11 @@ Top_Posts_Month$`Created utc` <- as_datetime(Top_Posts_Month$`Created unix`)
 
 # create new column with domain names
 Top_Posts_Month$`Domain` <- domain(Top_Posts_Month$`Post URL`)
+
+# create new column with titles
+Top_Posts_Month$`Title Clean` <- Top_Posts_Month$`Title`
+
+# make titles lowercase
+Top_Posts_Month$`Title Clean` <- tolower(Top_Posts_Month$`Title Clean`)
+
 
