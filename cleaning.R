@@ -1,3 +1,9 @@
+#import packages
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(urltools) #package wrangles urls
+
 
 # import top posts - last month
 library(readr)
@@ -7,5 +13,16 @@ Top_Posts_Month <- read_csv("Top Posts Month.csv")
 head(Top_Posts_Month)
 str(Top_Posts_Month)
 
+# create new column with post rank #1-100
 Top_Posts_Month$Rank <- Top_Posts_Month$...1 + 1
-head(Top_Posts_Month)    
+head(Top_Posts_Month)  
+
+# rename 'Created UTC'
+colnames(Top_Posts_Month)[3] = "Created unix"
+
+# create new column with post creation datetime
+Top_Posts_Month$`Created utc` <- as_datetime(Top_Posts_Month$`Created unix`)
+
+# create new column with domain names
+Top_Posts_Month$`Domain` <- domain(Top_Posts_Month$`Post URL`)
+

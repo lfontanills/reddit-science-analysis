@@ -46,17 +46,40 @@ You can find my script under scraper.py
 Let's import the data set from last month and have a look around.
 
 ```{r}
+# import dataset
 library(readr)
 Top_Posts_Month <- read_csv("Top Posts Month.csv")
 
+# look around
 View(Top_Posts_Month)
+head(Top_Posts_Month)
+str(Top_Posts_Month)
 ```
 
 
-We see that posts are ranked 0-99 (100 posts). I'd rather have posts ranked 1-100, so I'm going to make a new column called "
+We see in the 1st column that posts are ranked 0-99 (100 posts). I'd rather have posts ranked 1-100, so I'm going to make a new column called "
 
 ```{r}
+# create new column with post rank #1-100
 Top_Posts_Month$Rank <- Top_Posts_Month$...1 + 1
+head(Top_Posts_Month)  
+```
+
+In the 3rd colunm, 'Created UTC', the date and time each post was created is listed as UNIX time. UNIX measures time as the number of days after 1970-01-01. I'd rather see this information as a datetime. First I'll rename 'Created UTC' to 'UNIX', then create a new column called 'Created datetime' with the calculated date and time of post creation.
+
+```{r}
+# rename 'Created UTC'
+colnames(Top_Posts_Month)[3] = "Created unix"
+
+# create new column with post creation datetime
+Top_Posts_Month$`Created utc` <- as_datetime(Top_Posts_Month$`Created unix`)
+```
+
+The column 'Post URL' contains the full web address of each post, however I only want the domain name. I installed the package urltools to isolate the domain name in a new column called 'Domain'
+
+```{r}
+# create new column with domain names
+Top_Posts_Month$`Domain` <- domain(Top_Posts_Month$`Post URL`)
 ```
 
 
