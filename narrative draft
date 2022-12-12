@@ -24,13 +24,17 @@ Potential biases: You may have noticed that I have a not-so-flattering take on s
 
 My goals: A tidy wordcloud of title words compared with titles from scientific journals in the last month. A statistical analysis of my dataset wherein, hopefully, some significant trends appear and I either pat myself on the back or eat crow. Strong documentation of my work so that it's reproducible.
 
-## Part 2: Data scraping
+## scraping notes
 
 We're starting off in Python, because PRAW (Reddit's API Wrapper) uses Python. Most of my code comes straight from [here](https://www.geeksforgeeks.org/scraping-reddit-using-python/). To run this code yourself, you'll need to follow the instructions [here](https://praw.readthedocs.io/en/stable/) and input your own user information.
 
-
-
 You can find my script under scraper.py
+
+I run this 3x, once for month, year, and all. This pulls the top 100 posts from these time periods.
+
+## wrangling notes
+
+
 
 
 

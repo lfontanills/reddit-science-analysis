@@ -11,5 +11,36 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Introduction
+
+### Required packages
+
+```{r}
+library(readr) # create data frames from .csv files
+library(tidyverse) # data cleaning
+library(lubridate) # wrangle dates
+library(ggplot2) # visualization
+library(urltools) # wrangle urls
+library(tidytext) #NLP toolkit
+```
+
+### Data scraping
+
+Use scraper.py to generate 3 .csv files, corresponding to the top 100 posts of the last month, year, and of all-time. Each of these contain 9 variables:
+- `...1` ranks the post from 0-99 (highest score to lowest score)
+- `id` is a unique string of letters and numbers that identify each post. Each post only has 1 id.
+- `created_unix_utc` is the time the post was created as a unix number.
+- `post_url` is the url for the website the post links to. This can be from an online news outlet, journal, etc.. Each post has a unique url.
+- `post_title` is the title of the post.
+- `flair` is a tag attached to each post by a moderator that places that post in a category. Categories are fields of science and include biology, physics, psychology, and news.
+- `score` is the number of times a post was upvoted by a user (indicating that they found the post interesting and relevant to the subreddit).
+- `num_comments` is the number of unique comments a post received. This does not include edits to comments.
+- `upvote_ratio` is the ratio of upvotes (approval) to downvotes (disapproval) a post received. It is formatted as a decimal from 0 to 1.
+
+
+### Data cleaning
+
+### Analysis 1: everything but the titles
+
 
 

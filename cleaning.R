@@ -1,20 +1,28 @@
 #import packages
+library(readr)
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
 library(urltools) #package wrangles urls
 library(tidytext) #NLP 
 
-# import top posts - last month
-library(readr)
-Top_Posts_Month <- read_csv("Top Posts Month.csv")
+# create data frame with top 100 posts from the last month
+top_month <- read_csv("Top-Posts-Month.csv")
+View(top_month)
 
-# inspect dataset
-head(Top_Posts_Month)
-str(Top_Posts_Month)
+# create data frame with top 100 posts from the last year
+top_year <- read_csv("Top-Posts-Year.csv")
+View(top_year)
+
+# create data frame with top 100 posts from all time
+top_all <- read_csv("Top-Posts-All.csv")
+View(top_all)
+
+
+
 
 # create new column with post rank #1-100
-Top_Posts_Month$Rank <- Top_Posts_Month$...1 + 1
+top_month$rank <- top_month$...1 + 1
 head(Top_Posts_Month)  
 
 # rename 'Created UTC'
