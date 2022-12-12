@@ -46,8 +46,15 @@ You can find my script under scraper.py
 Let's import the data set from last month and have a look around.
 
 ```{r}
-# import dataset
+# import packages
 library(readr)
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(urltools) #package wrangles urls
+library(tidytext) #NLP 
+
+# import dataset
 Top_Posts_Month <- read_csv("Top Posts Month.csv")
 
 # look around
@@ -82,4 +89,12 @@ The column `Post URL` contains the full web address of each post, however I only
 Top_Posts_Month$`Domain` <- domain(Top_Posts_Month$`Post URL`)
 ```
 
-The title text looks good on first view - no obvious typos or missing characters. I want to make everything lowercase. I don't want to remove punctuation at this time because there are certain strings I need to figure out how to deal with ('U.S.' for the country would be the same as 'us' the pronoun).
+The title text looks good on first view - no obvious typos or missing characters. I want to make everything lowercase. I am also removing punctuation after checking some specific cases: U.S. would become us, which is fine because there are no instances of the word 'us' in this dataset. I am also fine removing numbers, percentages, etc. In the future I want to rewrite this section with pipes.
+
+```{r}
+Top_Posts_Month$`Clean Title` <- tolower(Top_Posts_Month$Title) #make lowercase
+Top_Posts_Month$`Clean Title` <- gsub("[[:punct:]]", "", Top_Posts_Month$`Clean Title`) # remove punctuation
+Top_Posts_Month$`Clean Title` <- gsub("[[:digit:]]", "", Top_Posts_Month$`Clean Title`) # remove digits
+Top_Posts_Month$`Clean Title` <- gsub("\\s+", " ", str_trim(Top_Posts_Month$`Clean Title`)) # remove excess whitespace
+```
+
