@@ -1,6 +1,7 @@
 #import packages for project
 library(tidyverse)
 library(lubridate)
+library(skimr)
 library(ggplot2)
 library(urltools) #package wrangles urls
 library(tidytext) #NLP 
