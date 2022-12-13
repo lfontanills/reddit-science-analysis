@@ -16,10 +16,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ### Required packages
 
 ```{r}
-library(readr) # create data frames from .csv files
+library(readr) # create data frames
 library(tidyverse) # data cleaning
 library(lubridate) # wrangle dates
-library(ggplot2) # visualization
+library(skimr) # skim dataset
+library(ggplot2) # create visualization
 library(urltools) # wrangle urls
 library(tidytext) #NLP toolkit
 ```
