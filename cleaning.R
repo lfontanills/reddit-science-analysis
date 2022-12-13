@@ -1,24 +1,27 @@
-#import packages
-library(readr)
+#import packages for project
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
 library(urltools) #package wrangles urls
 library(tidytext) #NLP 
 
-# create data frame with top 100 posts from the last month
-top_month <- read_csv("Top-Posts-Month.csv")
-View(top_month)
+# before combining data frames, add a column indicating if it was a top "month", "year", or "all" post.
+top_all_2 <- top_all %>% 
+  mutate(all_time = TRUE) %>% 
+  mutate(past_year = FALSE) %>% 
+  mutate(past_month = FALSE)
 
-# create data frame with top 100 posts from the last year
-top_year <- read_csv("Top-Posts-Year.csv")
-View(top_year)
+top_year_2 <- top_year %>%
+  mutate(all_time = FALSE) %>% 
+  mutate(past_year = TRUE) %>% 
+  mutate(past_month = FALSE)
 
-# create data frame with top 100 posts from all time
-top_all <- read_csv("Top-Posts-All.csv")
-View(top_all)
+top_month_2 <- top_month %>% 
+  mutate(all_time = FALSE) %>% 
+  mutate(past_year = FALSE) %>% 
+  mutate(past_month = TRUE)
 
-
+#
 
 
 # create new column with post rank #1-100

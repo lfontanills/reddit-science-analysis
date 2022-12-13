@@ -37,8 +37,46 @@ Use scraper.py to generate 3 .csv files, corresponding to the top 100 posts of t
 - `num_comments` is the number of unique comments a post received. This does not include edits to comments.
 - `upvote_ratio` is the ratio of upvotes (approval) to downvotes (disapproval) a post received. It is formatted as a decimal from 0 to 1.
 
+```{r}
+# create and view data frame with top 100 posts from the last month
+top_month <- read_csv("Top-Posts-Month.csv")
+View(top_month)
+
+# create and view data frame with top 100 posts from the last year
+top_year <- read_csv("Top-Posts-Year.csv")
+View(top_year)
+
+# create view data frame with top 100 posts from all time
+top_all <- read_csv("Top-Posts-All.csv")
+View(top_all)
+```
 
 ### Data cleaning
+
+Data frames are tidy: one row for each post id, fields OK.
+
+Before combining data frames I am going to add columns "all_time", "past_year", and "past_month" with boolean indicating over which time period(s) the post made the top 100. 
+```{r}
+
+# before combining data frames, add a column indicating if it was a top "month", "year", or "all" post.
+top_all_2 <- top_all %>% 
+  mutate(all_time = TRUE) %>% 
+  mutate(past_year = FALSE) %>% 
+  mutate(past_month = FALSE)
+
+top_year_2 <- top_year %>%
+  mutate(all_time = FALSE) %>% 
+  mutate(past_year = TRUE) %>% 
+  mutate(past_month = FALSE)
+
+top_month_2 <- top_month %>% 
+  mutate(all_time = FALSE) %>% 
+  mutate(past_year = FALSE) %>% 
+  mutate(past_month = TRUE)
+```
+
+
+
 
 ### Analysis 1: everything but the titles
 
