@@ -26,7 +26,9 @@ top_year$created_utc <- as_datetime(top_year$created_unix_utc)
 
 top_month$created_utc <- as_datetime(top_month$created_unix_utc)
 
-# combine data frames
-top_post_temp <- full_join(top_all, top_year)
-top_posts <- full_join(top_post_temp, top_month)
+# make column with domain name only
+top_all$domain <- domain(top_all$post_url)
 
+top_year$domain <- domain(top_year$post_url)
+
+top_month$domain <- domain(top_month$post_url)
