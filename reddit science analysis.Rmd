@@ -139,4 +139,19 @@ top_month %>%
   summarize(max_upvote = max(upvote_ratio))%>% 
   arrange(max_upvote)
 ```
+When sorting by domain, it becomes clear that www.psypost.org appears much more often than other domains. Its mean score is quite high, but its mean upvote ratio is lower
+
+```{r}
+top_month %>% 
+  group_by(domain) %>% 
+  summarize(mean_score = mean(score), num_posts = n_distinct(id), mean_upvote = mean(upvote_ratio)) %>% 
+  arrange(-num_posts)
+```
+
+Throw in the standard deviations
+```{r}
+# Calculate standard deviation 
+sd(top_month$score)
+sd(top_month$upvote_ratio)
+```
 
