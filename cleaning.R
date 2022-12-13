@@ -5,47 +5,17 @@ library(ggplot2)
 library(urltools) #package wrangles urls
 library(tidytext) #NLP 
 
-# before combining data frames, add a column indicating if it was a top "month", "year", or "all" post.
-top_all_2 <- top_all %>% 
-  mutate(all_time = TRUE) %>% 
-  mutate(past_year = FALSE) %>% 
-  mutate(past_month = FALSE)
+# change column 1 name from ...1 to all_time_rank, year_rank, or month_rank
+colnames(top_all)[1] <- "all_time_rank"
+colnames(top_year)[1] <- "year_rank"
+colnames(top_month)[1] <- "month_rank"
 
-top_year_2 <- top_year %>%
-  mutate(all_time = FALSE) %>% 
-  mutate(past_year = TRUE) %>% 
-  mutate(past_month = FALSE)
+# add 1 to all the rankings for clarity
+top_all$all_time_rank = top_all$all_time_rank + 1
+top_year$year_rank = top_year$year_rank + 1
+top_month$month_rank = top_month$month_rank + 1
 
-top_month_2 <- top_month %>% 
-  mutate(all_time = FALSE) %>% 
-  mutate(past_year = FALSE) %>% 
-  mutate(past_month = TRUE)
-
-#
-
-
-# create new column with post rank #1-100
-top_month$rank <- top_month$...1 + 1
-head(Top_Posts_Month)  
-
-# rename 'Created UTC'
-colnames(Top_Posts_Month)[3] = "Created unix"
-
-# create new column with post creation datetime
-Top_Posts_Month$`Created utc` <- as_datetime(Top_Posts_Month$`Created unix`)
-
-# create new column with domain names
-Top_Posts_Month$`Domain` <- domain(Top_Posts_Month$`Post URL`)
-
-
-# clean titles: remove case, punctuation, numerics, whitespace
-Top_Posts_Month$`Clean Title` <- tolower(Top_Posts_Month$Title)
-Top_Posts_Month$`Clean Title` <- gsub("[[:punct:]]", "", Top_Posts_Month$`Clean Title`)
-Top_Posts_Month$`Clean Title` <- gsub("[[:digit:]]", "", Top_Posts_Month$`Clean Title`)
-Top_Posts_Month$`Clean Title` <- gsub("\\s+", " ", str_trim(Top_Posts_Month$`Clean Title`))
-
-  
-  
-
-
+# combine data frames
+top_post_temp <- full_join(top_all, top_year)
+top_posts <- full_join(top_post_temp, top_month)
 

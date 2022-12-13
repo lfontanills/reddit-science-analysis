@@ -55,24 +55,24 @@ View(top_all)
 
 Data frames are tidy: one row for each post id, fields OK.
 
-Before combining data frames I am going to add columns "all_time", "past_year", and "past_month" with boolean indicating over which time period(s) the post made the top 100. 
+Before combining data frames I am going to add 1 to the 1st column (...1, which is the post rank for the time period) and rename the column in each data frame 
 ```{r}
+# change column 1 name from ...1 to all_time_rank, year_rank, or month_rank
+colnames(top_all)[1] <- "all_time_rank"
+colnames(top_year)[1] <- "year_rank"
+colnames(top_month)[1] <- "month_rank"
 
-# before combining data frames, add a column indicating if it was a top "month", "year", or "all" post.
-top_all_2 <- top_all %>% 
-  mutate(all_time = TRUE) %>% 
-  mutate(past_year = FALSE) %>% 
-  mutate(past_month = FALSE)
+# add 1 to all the rankings for clarity
+top_all$all_time_rank = top_all$all_time_rank + 1
+top_year$year_rank = top_year$year_rank + 1
+top_month$month_rank = top_month$month_rank + 1
+```
 
-top_year_2 <- top_year %>%
-  mutate(all_time = FALSE) %>% 
-  mutate(past_year = TRUE) %>% 
-  mutate(past_month = FALSE)
-
-top_month_2 <- top_month %>% 
-  mutate(all_time = FALSE) %>% 
-  mutate(past_year = FALSE) %>% 
-  mutate(past_month = TRUE)
+Next I'll combine the three data frames into one
+```{r}
+# combine data frames
+top_post_temp <- full_join(top_all, top_year)
+top_posts <- full_join(top_post_temp, top_month)
 ```
 
 
