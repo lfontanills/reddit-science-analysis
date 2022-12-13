@@ -68,6 +68,18 @@ top_year$year_rank = top_year$year_rank + 1
 top_month$month_rank = top_month$month_rank + 1
 ```
 
+I also want to make a new column with the unix timestamp converted to a datetime (UTC)
+
+```{r}
+# change created_unix_utc to a datetime
+top_all$created_utc <- as_datetime(top_all$created_unix_utc)
+
+top_year$created_utc <- as_datetime(top_year$created_unix_utc)
+
+top_month$created_utc <- as_datetime(top_month$created_unix_utc)
+```
+
+
 Next I'll combine the three data frames into one
 ```{r}
 # combine data frames
