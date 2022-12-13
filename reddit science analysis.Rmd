@@ -54,7 +54,7 @@ View(top_all)
 
 ### Data cleaning
 
-Data frames are tidy: one row for each post id, fields OK.
+Data frames are already tidy: one row per post, one column per variable, each post is unique
 
 Before combining data frames I am going to add 1 to the 1st column (...1, which is the post rank for the time period) and rename the column in each data frame 
 ```{r}
@@ -69,7 +69,7 @@ top_year$year_rank = top_year$year_rank + 1
 top_month$month_rank = top_month$month_rank + 1
 ```
 
-I also want to make a new column with the unix timestamp converted to a datetime (UTC)
+I made a new column with the unix timestamp converted to a datetime (UTC)
 
 ```{r}
 # change created_unix_utc to a datetime
@@ -98,61 +98,19 @@ top_post_temp <- full_join(top_all, top_year)
 top_posts <- full_join(top_post_temp, top_month)
 ```
 
-### Analysis 1: everything but the titles
-
-There are no missing or erroneous values. 
-
-The most top posts last month came from the categories Health, Psychology, and Social Science
-```{r}
-# count the number of top posts by flair
-
-top_month %>% 
-  group_by(flair) %>% 
-  summarize(num_posts = n_distinct(id))
-```
-
-Earth science, social science, and psychology had the highest post scores. They also have the highest number of comments on average
-```{r}
-top_month %>% 
-  group_by(flair) %>% 
-  summarize(avg_score = mean(score)) %>% 
-  arrange(avg_score)
-
-# see number of comments by flair
-top_month %>% 
-  group_by(flair) %>% 
-  summarize(avg_comments = max(num_comments))%>% 
-  arrange(avg_comments)
-```
-
-Upvote ratios are high for all categories. 
+### Exploratory data analysis
 
 ```{r}
-# see min upvote ratio by flair
-top_month %>% 
-  group_by(flair) %>% 
-  summarize(min_upvote = min(upvote_ratio))%>% 
-  arrange(min_upvote)
-
-# see max upvote ratio by flair
-top_month %>% 
-  group_by(flair) %>% 
-  summarize(max_upvote = max(upvote_ratio))%>% 
-  arrange(max_upvote)
+skim(top_month)
 ```
-When sorting by domain, it becomes clear that www.psypost.org appears much more often than other domains. Its mean score is quite high, but its mean upvote ratio is lower
+1. Completeness: There are no missing or incorrect values in the data sets. These are small data sets. Each timeframe comtains 11 variables and 100 observations. Last month's top posts covered 17 science topics (flair) and came from 61 domains. None of the numerical variables show normal distribution. 
+
+2. Distribution: the histograms from skim(top_month) indicate that these measures don't follow a normal distribution. A Shapiro-Wilk normality test confirms this. I am looking for relationships between the number of posts of the top 100 from a given topic (flair), so I won't go further with analyzing relationships between my numerical variables.
 
 ```{r}
-top_month %>% 
-  group_by(domain) %>% 
-  summarize(mean_score = mean(score), num_posts = n_distinct(id), mean_upvote = mean(upvote_ratio)) %>% 
-  arrange(-num_posts)
+shapiro.test(top_month$score)
+shapiro.test(top_month$num_comments)
+shapiro.test(top_month$upvote_ratio)
 ```
 
-Throw in the standard deviations
-```{r}
-# Calculate standard deviation 
-sd(top_month$score)
-sd(top_month$upvote_ratio)
-```
-
+3. 

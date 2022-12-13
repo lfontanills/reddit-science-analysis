@@ -1,22 +1,39 @@
 # get summary
 
-summary(top_month)
-sd(top_month$score)
-sd(top_month$upvote_ratio)
-sd(top_month$num_comments)
+# skim numerical variables
+skim(top_month)
 
-# What were the posts with the low upvote ratio
-select(top_month$post_title, upvote_ratio < .8)
+# confirm normal or non-normal distribution (p > 0.05 is normal)
+shapiro.test(top_month$score)
+shapiro.test(top_month$num_comments)
+shapiro.test(top_month$upvote_ratio)
 
-# Count the number of posts by domain name
-top_month %>% 
-  group_by(domain) %>% 
-  summarize(num_posts = n_distinct(id)) %>% 
-  arrange(-num_posts)
+# explore relationship between topic and score
+
+# Group by topic flair
+by_flair <- top_month %>% 
+  group_by(flair) %>% 
+  summarize(score, upvote_ratio)
+
+
+# confirm normal or non-normal distribution (p > 0.05 is normal)
+shapiro.test(by_flair$score) # 0.80, normal
+
+shapiro.test(by_flair$upvote_ratio) # non-normal
+
+# graph score by flair
+
+ggplot(by_flair, aes(x=flair, y=median(score))) +
+  geom_col()
+
+
+
+
+# Group by by domain name
 
 by_domain <- top_month %>% 
   group_by(domain) %>% 
-  summarize(mean_score = mean(score), num_posts = n_distinct(id), mean_upvote = mean(upvote_ratio)) %>% 
+  summarize(median_score = median(score), num_posts = n_distinct(id), median_upvote = median(upvote_ratio)) %>% 
   arrange(-num_posts)
 
 # Calculate standard deviation 
