@@ -169,3 +169,12 @@ by_domain_all %>%
   arrange(desc(count_id))
 ```
 
+5. Conclusions
+
+Health, Psychology, and Social Science most frequently make top posts by month, year, and all-time. Psypost and eureka altet most frequently make top posts by month and year, but not all time, perhaps indicating a recent uptick in the number of posts using these sources (past year). 
+
+This analysis would be improved by a longitudinal study, monitoring top posts over a period of time to get more information about which posts make the top each month, and how those filter out by year and all time. 
+
+6. Next steps
+
+I am curious about the number of posts from the same sources, about the same topics. I will conduct a text analysis of post titles to see what words and ideas make up the top posts on r/science
