@@ -101,16 +101,71 @@ top_posts <- full_join(top_post_temp, top_month)
 ### Exploratory data analysis
 
 ```{r}
-skim(top_month)
+skim(top_posts)
 ```
-1. Completeness: There are no missing or incorrect values in the data sets. These are small data sets. Each timeframe comtains 11 variables and 100 observations. Last month's top posts covered 17 science topics (flair) and came from 61 domains. None of the numerical variables show normal distribution. 
+1. Completeness: There are no missing or incorrect values in the data sets. There are 13 variables and 298 rows (some posts appeared in multiple time periods, most appeared in just one). The top posts covered 20 science topics (flair) and came from 145 domains. None of the numerical variables show normal distribution. 
 
-2. Distribution: the histograms from skim(top_month) indicate that these measures don't follow a normal distribution. A Shapiro-Wilk normality test confirms this. I am looking for relationships between the number of posts of the top 100 from a given topic (flair), so I won't go further with analyzing relationships between my numerical variables.
+2. Distribution: the histograms from skim(top_all) indicate that these measures don't follow a normal distribution (The same is true when assessing each timeframe independently). A Shapiro-Wilk normality test confirms this. I am looking for relationships between the number of posts and topic (flair), so I won't go further with analyzing relationships between my numerical variables.
 
 ```{r}
-shapiro.test(top_month$score)
-shapiro.test(top_month$num_comments)
-shapiro.test(top_month$upvote_ratio)
+shapiro.test(top_all$score)
+shapiro.test(top_all$num_comments)
+shapiro.test(top_all$upvote_ratio)
 ```
 
-3. 
+3. Explore relationships between topic(flair) and number of posts. No clear relationship between flair and upvote ratio. Highest numbers by month, year, and all are Health, Psychology, and Social Sciences
+
+```{r}
+# Group by topic flair
+by_flair_month <- top_month %>% 
+  group_by(flair) %>% 
+  summarize(count_id=n_distinct(id))
+
+by_flair_year <- top_year %>% 
+  group_by(flair) %>% 
+  summarize(count_id=n_distinct(id))
+
+by_flair_all <- top_all %>% 
+  group_by(flair) %>% 
+  summarize(count_id=n_distinct(id))
+
+# graph number of posts by flair
+
+ggplot(by_flair_month, aes(x=flair, y=count_id)) +
+  geom_col()
+
+ggplot(by_flair_year, aes(x=flair, y=count_id)) +
+  geom_col()
+
+ggplot(by_flair_all, aes(x=flair, y=count_id)) +
+  geom_col()
+
+```
+
+4. Explore relationships between source (domain name) and number of posts
+
+```{r}
+# Group by domain name
+
+by_domain_month <- top_month %>% 
+  group_by(domain) %>% 
+  summarize(count_id=n_distinct(id))
+
+by_domain_year <- top_year %>% 
+  group_by(domain) %>% 
+  summarize(count_id=n_distinct(id))
+
+by_domain_all <- top_all %>% 
+  group_by(domain) %>% 
+  summarize(count_id=n_distinct(id))
+
+by_domain_month %>% 
+  arrange(desc(count_id))
+
+by_domain_year %>% 
+  arrange(desc(count_id))
+
+by_domain_all %>% 
+  arrange(desc(count_id))
+```
+
