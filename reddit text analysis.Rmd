@@ -41,7 +41,7 @@ text_all <- top_all[,c("all_time_rank","id", "flair", "domain", "post_title")]
 ```
 
 To work with titles as a tidy dataset, restructure to one token per row
-```{r}
+```{r, tidy text with unnest}
 # restructure one token per row: unnesttokens
 tidy_month <-text_month %>% 
   unnest_tokens(word, post_title)
@@ -57,7 +57,7 @@ tidy_all
 ```
 
 Remove stopwords using antijoin
-```{r}
+```{r, remove stopwords}
 # remove stop words
 
 data("stop_words")
@@ -73,7 +73,7 @@ tidy_all <- tidy_all %>%
 ```
 
 Find top words by time period
-```{r}
+```{r, find top words}
 tidy_month %>% 
   count(word, sort = TRUE)
 
