@@ -22,7 +22,6 @@ library(lubridate) # wrangle dates
 library(skimr) # skim dataset
 library(ggplot2) # create visualization
 library(urltools) # wrangle urls
-library(tidytext) #NLP toolkit
 ```
 
 ### Data scraping

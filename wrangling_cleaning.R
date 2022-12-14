@@ -4,7 +4,6 @@ library(lubridate)
 library(skimr)
 library(ggplot2)
 library(urltools) #package wrangles urls
-library(tidytext) #NLP 
 
 #import packages
 library(readr)
