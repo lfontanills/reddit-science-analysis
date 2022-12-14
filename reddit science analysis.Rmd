@@ -56,7 +56,7 @@ View(top_all)
 Data frames are already tidy: one row per post, one column per variable, each post is unique
 
 Before combining data frame - rename the column in each data frame 
-```{r change datetime, ranking}
+```{r rename rank column}
 # change column 1 name from ...1 to all_time_rank, year_rank, or month_rank
 colnames(top_all)[1] <- "all_time_rank"
 colnames(top_year)[1] <- "year_rank"
@@ -65,7 +65,7 @@ colnames(top_month)[1] <- "month_rank"
 
 
 I am going to add 1 to the ranking columns so they go from 1-100
-```{r}
+```{r change ranking}
 # add 1 to all the rankings for clarity
 top_all$all_time_rank = top_all$all_time_rank + 1
 top_year$year_rank = top_year$year_rank + 1
@@ -74,7 +74,7 @@ top_month$month_rank = top_month$month_rank + 1
 
 I made a new column with the unix timestamp converted to a datetime (UTC)
 
-```{r}
+```{r create datetime}
 # change created_unix_utc to a datetime
 top_all$created_utc <- as_datetime(top_all$created_unix_utc)
 
@@ -84,7 +84,7 @@ top_month$created_utc <- as_datetime(top_month$created_unix_utc)
 ```
 
 I isolated the domain name from the url and created the column `domain`
-```{r}
+```{r create domain column}
 # make column with domain name only
 top_all$domain <- domain(top_all$post_url)
 
@@ -95,7 +95,7 @@ top_month$domain <- domain(top_month$post_url)
 
 
 Next I'll combine the three data frames into one
-```{r}
+```{r combine dataframes}
 # combine data frames
 top_post_temp <- full_join(top_all, top_year)
 top_posts <- full_join(top_post_temp, top_month)
@@ -103,14 +103,14 @@ top_posts <- full_join(top_post_temp, top_month)
 
 ### Exploratory data analysis
 
-```{r}
+```{r skim dataframe}
 skim(top_posts)
 ```
 1. Completeness: There are no missing or incorrect values in the data sets. There are 13 variables and 298 rows (some posts appeared in multiple time periods, most appeared in just one). The top posts covered 20 science topics (flair) and came from 145 domains. None of the numerical variables show normal distribution. 
 
 2. Distribution: the histograms from skim(top_all) indicate that these measures don't follow a normal distribution (The same is true when assessing each timeframe independently). A Shapiro-Wilk normality test confirms this. I am looking for relationships between the number of posts and topic (flair), so I won't go further with analyzing relationships between my numerical variables.
 
-```{r}
+```{r shapiro test}
 shapiro.test(top_all$score)
 shapiro.test(top_all$num_comments)
 shapiro.test(top_all$upvote_ratio)
@@ -118,7 +118,7 @@ shapiro.test(top_all$upvote_ratio)
 
 3. Explore relationships between topic(flair) and number of posts. No clear relationship between flair and upvote ratio. Highest numbers by month, year, and all are Health, Psychology, and Social Sciences
 
-```{r}
+```{r summarize flair by time period}
 # Group by topic flair
 by_flair_month <- top_month %>% 
   group_by(flair) %>% 
@@ -147,7 +147,7 @@ ggplot(by_flair_all, aes(x=flair, y=count_id)) +
 
 4. Explore relationships between source (domain name) and number of posts
 
-```{r}
+```{r summarize domain by time period}
 # Group by domain name
 
 by_domain_month <- top_month %>% 

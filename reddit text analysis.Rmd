@@ -18,3 +18,9 @@ library(tidyverse) # data cleaning
 library(tidytext) #NLP toolkit
 ```
 
+### Data sources
+
+Same as reddit-science-analysis (possibly copy here later?)
+
+### Text wrangling
+
