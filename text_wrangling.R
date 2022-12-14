@@ -29,9 +29,19 @@ data("stop_words")
 tidy_month <- tidy_month %>% 
   anti_join(stop_words)
 
+tidy_year <- tidy_year %>% 
+  anti_join(stop_words)
+
+tidy_all <- tidy_all %>% 
+  anti_join(stop_words)
+
 # find most common words
 
 tidy_month %>% 
   count(word, sort = TRUE)
 
+tidy_year %>% 
+  count(word, sort = TRUE)
 
+tidy_all %>% 
+  count(word, sort = TRUE)
