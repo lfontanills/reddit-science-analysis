@@ -20,7 +20,12 @@ library(tidytext) #NLP toolkit
 
 ### Data sources
 
-Same as reddit-science-analysis (possibly copy here later?)
+Same as reddit-science-analysis
+```{r}
+top_month
+top_year
+top_all
+```
 
 ### Text wrangling
 
@@ -59,11 +64,23 @@ data("stop_words")
 
 tidy_month <- tidy_month %>% 
   anti_join(stop_words)
+
+tidy_year <- tidy_year %>% 
+  anti_join(stop_words)
+
+tidy_all <- tidy_all %>% 
+  anti_join(stop_words)
 ```
 
 Find top words by time period
 ```{r}
 tidy_month %>% 
+  count(word, sort = TRUE)
+
+tidy_year %>% 
+  count(word, sort = TRUE)
+
+tidy_all %>% 
   count(word, sort = TRUE)
 ```
 
