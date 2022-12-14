@@ -11,3 +11,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+### Required packages
+
+```{r}
+library(tidyverse) # data cleaning
+library(tidytext) #NLP toolkit
+```
+
