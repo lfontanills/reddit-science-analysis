@@ -21,3 +21,17 @@ tidy_year
 tidy_all <- text_all %>% 
   unnest_tokens(word, post_title)
 tidy_all
+
+# remove stop words
+
+data("stop_words")
+
+tidy_month <- tidy_month %>% 
+  anti_join(stop_words)
+
+# find most common words
+
+tidy_month %>% 
+  count(word, sort = TRUE)
+
+

@@ -51,3 +51,19 @@ tidy_all <- text_all %>%
 tidy_all
 ```
 
+Remove stopwords using antijoin
+```{r}
+# remove stop words
+
+data("stop_words")
+
+tidy_month <- tidy_month %>% 
+  anti_join(stop_words)
+```
+
+Find top words by time period
+```{r}
+tidy_month %>% 
+  count(word, sort = TRUE)
+```
+
