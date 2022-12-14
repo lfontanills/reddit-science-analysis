@@ -28,6 +28,8 @@ tidy_science
 tidy_science %>% 
   count(word, sort = TRUE)
 
+# calculate frequency
+
 frequency_2 <- bind_rows(mutate(tidy_month, timeframe = "month"),
                        mutate(tidy_year, timeframe = "year"),
                        mutate(tidy_science, timeframe = "journals")) %>% 
@@ -42,6 +44,8 @@ frequency_2 <- bind_rows(mutate(tidy_month, timeframe = "month"),
 
 frequency_2
 
+# correlation tests
+
 cor.test(data = frequency_2[frequency_2$timeframe == "month",],
          ~ proportion + `journals`)
 
@@ -49,3 +53,43 @@ cor.test(data = frequency_2[frequency_2$timeframe == "year",],
          ~ proportion + `journals`)
 
 ## add more data pints from popular science psych/social science sources
+library(readr)
+more_science_titles <- read_csv("frontiers science nature titles - Sheet1.csv")
+View(frontiers_science_nature_titles_Sheet1)
+
+# restructure one token per row: unnest tokens
+tidy_more_science <-more_science_titles %>% 
+  unnest_tokens(word, titles)
+tidy_more_science
+
+# remove stop words
+tidy_more_science <- tidy_more_science %>% 
+  anti_join(custom_stop_words)
+tidy_more_science
+
+tidy_more_science %>% 
+  count(word, sort = TRUE)
+
+# calculate frequency
+
+frequency_3 <- bind_rows(mutate(tidy_month, timeframe = "month"),
+                         mutate(tidy_year, timeframe = "year"),
+                         mutate(tidy_more_science, timeframe = "journals2")) %>% 
+  mutate(word = str_extract(word, "[a-z']+")) %>% 
+  count(timeframe, word) %>% 
+  group_by(timeframe) %>% 
+  mutate(proportion = n / sum(n)) %>% 
+  select(-n) %>% 
+  pivot_wider(names_from = timeframe, values_from = proportion) %>% 
+  pivot_longer(`month`:`year`,
+               names_to = "timeframe", values_to = "proportion")
+
+frequency_3
+
+# correlation tests
+
+cor.test(data = frequency_3[frequency_3$timeframe == "month",],
+         ~ proportion + `journals2`)
+
+cor.test(data = frequency_3[frequency_3$timeframe == "year",],
+         ~ proportion + `journals2`)
