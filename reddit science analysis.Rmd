@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Required packages
 
-```{r}
+```{r load packages, include=FALSE}
 library(readr) # create data frames
 library(tidyverse) # data cleaning
 library(lubridate) # wrangle dates
@@ -37,7 +37,7 @@ Use scraper.py to generate 3 .csv files, corresponding to the top 100 posts of t
 - `num_comments` is the number of unique comments a post received. This does not include edits to comments.
 - `upvote_ratio` is the ratio of upvotes (approval) to downvotes (disapproval) a post received. It is formatted as a decimal from 0 to 1.
 
-```{r}
+```{r create dataframes, include=FALSE}
 # create and view data frame with top 100 posts from the last month
 top_month <- read_csv("Top-Posts-Month.csv")
 View(top_month)
@@ -55,13 +55,17 @@ View(top_all)
 
 Data frames are already tidy: one row per post, one column per variable, each post is unique
 
-Before combining data frames I am going to add 1 to the 1st column (...1, which is the post rank for the time period) and rename the column in each data frame 
-```{r}
+Before combining data frame - rename the column in each data frame 
+```{r change datetime, ranking}
 # change column 1 name from ...1 to all_time_rank, year_rank, or month_rank
 colnames(top_all)[1] <- "all_time_rank"
 colnames(top_year)[1] <- "year_rank"
 colnames(top_month)[1] <- "month_rank"
+```
 
+
+I am going to add 1 to the ranking columns so they go from 1-100
+```{r}
 # add 1 to all the rankings for clarity
 top_all$all_time_rank = top_all$all_time_rank + 1
 top_year$year_rank = top_year$year_rank + 1
