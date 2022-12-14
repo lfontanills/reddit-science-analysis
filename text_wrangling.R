@@ -10,7 +10,8 @@ library(wordcloud) # Wordclouds
 
 text_month <- top_month[,c("post_title")]
 text_year <- top_year[,c("post_title")]
-text_all <- top_all[,c("all_time_rank", "flair","post_title")]
+text_all <- top_all[,c("post_title")]
+
 
 # restructure one token per row: unnest tokens
 tidy_month <-text_month %>% 
@@ -28,6 +29,11 @@ tidy_all
 # remove stop words
 
 data("stop_words")
+
+# customize stop words
+custom_stop_words <- bind_rows(tibble(word = c(1:2022),
+                                      lexicon = c("custom")),
+                               stop_words)
 
 tidy_month <- tidy_month %>% 
   anti_join(stop_words)
@@ -157,9 +163,6 @@ bing_word_counts %>%
   labs(x = "Contribution to sentiment",
        y = NULL)
 
-custom_stop_words <- bind_rows(tibble(word = c(1:2022, "study", "found", "percent", "researchers", "research", "suggests", "suggest", "scientist", "scientists"),
-                                      lexicon = c("custom")),
-                               stop_words)
 
 
 # wordclouds - fix scale later
