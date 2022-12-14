@@ -78,3 +78,10 @@ ggplot(frequency, aes(x=proportion, y=`all time`,
   theme(legend.position="none") +
   labs(y = "all time", x = NULL)
  
+# test correlations
+
+cor.test(data = frequency[frequency$timeframe == "month",],
+         ~ proportion + `all time`)
+
+cor.test(data = frequency[frequency$timeframe == "year",],
+         ~ proportion + `all time`)
