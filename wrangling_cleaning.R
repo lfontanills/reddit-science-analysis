@@ -5,9 +5,6 @@ library(skimr)
 library(ggplot2)
 library(urltools) #package wrangles urls
 
-#import packages
-library(readr)
-
 # create and view data frame with top 100 posts from the last month
 top_month <- read_csv("Top-Posts-Month.csv")
 View(top_month)
