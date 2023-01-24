@@ -1,5 +1,3 @@
-# adapted from https://www.geeksforgeeks.org/scraping-reddit-using-python/
-
 # import packages
 import praw
 import pandas
