@@ -9,12 +9,7 @@ I also scraped post titles from the homepages of Frontiers in Science and Nature
 
 PRAW (Reddit's API) can only be accessed with Python.
 
-To get a read-only list of posts, I used scraper.py.
-
-You'll need a client id, client secret, user agent to access PRAW. Here's how to get that:
-1. Go to https://www.reddit.com/prefs/apps
-2. Click on "create an app" or "create another app"
-3. Create the application
+To get a read-only list of posts, I used scraper.py. To run this code yourself, you'll need to follow the instructions [this guide](https://praw.readthedocs.io/en/stable/) and use your own credentials.
 
 ### Python packages
 - praw
