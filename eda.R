@@ -25,14 +25,17 @@ shapiro.test(top_all$upvote_ratio)
 by_flair_month <- top_month %>% 
   group_by(flair) %>% 
   summarize(count_id=n_distinct(id))
+by_flair_month
 
 by_flair_year <- top_year %>% 
   group_by(flair) %>% 
   summarize(count_id=n_distinct(id))
+by_flair_year
 
 by_flair_all <- top_all %>% 
   group_by(flair) %>% 
   summarize(count_id=n_distinct(id))
+by_flair_all
 
 # graph number of posts by flair
 
