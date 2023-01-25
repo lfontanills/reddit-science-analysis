@@ -109,9 +109,9 @@ options(dplyr.summarise.inform = FALSE)
 I created three data frames, one for the top posts of all-time, one for the top posts last year, and one for the top posts last month (as of December 2022).
 ```{r}
 # Show it:
-top_all <- read.csv("top_all.csv")
-top_year <- read.csv("top_year.csv")
-top_month <- read.csv("top_month.csv")
+top_all <- read.csv("~/Documents/Projects/reddit-science-analysis-2/top_all.csv")
+top_year <- read.csv("~/Documents/Projects/reddit-science-analysis-2/top_year.csv")
+top_month <- read.csv("~/Documents/Projects/reddit-science-analysis-2/top_month.csv")
 
 ```
 
