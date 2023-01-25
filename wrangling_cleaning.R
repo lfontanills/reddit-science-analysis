@@ -45,3 +45,10 @@ top_all$domain <- domain(top_all$post_url)
 top_year$domain <- domain(top_year$post_url)
 
 top_month$domain <- domain(top_month$post_url)
+
+# export cleaned files as csvs
+write.csv(top_all, file = "~/Documents/Projects/reddit-science-analysis-2/top_all.csv")
+write.csv(top_year, file = "~/Documents/Projects/reddit-science-analysis-2/top_year.csv")
+write.csv(top_month, file = "~/Documents/Projects/reddit-science-analysis-2/top_month.csv")
+
+
