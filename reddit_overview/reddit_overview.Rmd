@@ -8,6 +8,7 @@ github: "lfontanills"
 home: "lfontanills.github.io"
 # !!! You need to provide a logo image here !!! Or just delete the field for no logo
 # logo: "logo_gallery.png"
+logo: "reddit_logo.png"
 output:
   epuRate::epurate:
     toc: TRUE

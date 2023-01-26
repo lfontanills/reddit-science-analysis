@@ -210,7 +210,11 @@ bing_word_counts %>%
 # wordclouds
 
 all_words <- tidy_all %>% count(word, sort=TRUE)
-wordcloud2(all_words, size = 1.6, )
+wordcloud2(all_words, size = 1.6)
+
+# make a logo for later
+logo_reddit <- wordcloud2(all_words, size = 1.6)
+logo_reddit
 
 year_words <- tidy_year %>% count(word, sort=TRUE)
 wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
