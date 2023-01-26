@@ -100,6 +100,7 @@ library(lubridate)
 library(skimr)
 library(textdata) # sentiment analysis
 library(readr) # NLP
+library(gghighlight) # graphing
 library(wordcloud) 
 library(rmarkdown)    # You need this library to run this template.
 library(epuRate)      # Install with devtools: install_github("holtzy/epuRate", force=TRUE)
@@ -115,11 +116,11 @@ top_month <- read.csv("~/Documents/Projects/reddit-science-analysis-2/top_month.
 
 ```
 
-The top_all file has `r nrow(top_all)` lines and `r ncol(top_all)` columns. It is ready to be analysed.
+The top_all file has `r nrow(top_all)` lines and `r ncol(top_all)` columns. It is ready to be analyzed.
 
-The top_year file has `r nrow(top_year)` lines and `r ncol(top_year)` columns. It is ready to be analysed.
+The top_year file has `r nrow(top_year)` lines and `r ncol(top_year)` columns. It is ready to be analyzed.
 
-The top_month file has `r nrow(top_month)` lines and `r ncol(top_month)` columns. It is ready to be analysed.
+The top_month file has `r nrow(top_month)` lines and `r ncol(top_month)` columns. It is ready to be analyzed.
 
 # Analysis
 ***
@@ -135,32 +136,145 @@ racism, Trump, sexism, refugees in the US, neoliberalism, abortion, religion
 
 ```{r}
 # find post with very low upvote ratio
-top_month %>% 
-  filter(upvote_ratio < .75 ) %>% 
-  arrange(upvote_ratio) %>% 
-  select(c(post_title, flair, upvote_ratio, score))
-
-top_year %>% 
-  filter(upvote_ratio < .75 ) %>% 
-  arrange(upvote_ratio) %>% 
-  select(c(post_title, flair, upvote_ratio, score))
-
+# all time
 top_all %>% 
   filter(upvote_ratio < .75 ) %>% 
   arrange(upvote_ratio) %>% 
-  select(c(post_title, flair, upvote_ratio, score))
+  select(c(post_title, flair, upvote_ratio, score, domain))
+
+# past year
+top_year %>% 
+  filter(upvote_ratio < .75 ) %>% 
+  arrange(upvote_ratio) %>% 
+  select(c(post_title, flair, upvote_ratio, score, domain))
+
+# past month
+top_month %>% 
+  filter(upvote_ratio < .75 ) %>% 
+  arrange(upvote_ratio) %>% 
+  select(c(post_title, flair, upvote_ratio, score, domain))
 
 ```
 
 ## Finding 1: Relationship between topic and post score
 
+Three topics dominate the top-post lists for all timeframes: Psychology, Health, and Social Science. Together, these make up 51% of the top posts of all time (59% top month, 56% top year). 
 
+```{r}
+# all-time
+by_flair_all <- top_all %>% 
+  group_by(flair) %>% 
+  summarize(count_id=n_distinct(id)) %>% 
+  arrange(desc(count_id)) %>% 
+  ggplot(aes(x = count_id, y=reorder(flair, count_id), fill=flair)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(count_id > 10) +
+  labs(
+    title = "Top r/science posts by topic",
+    subtitle = "Top 100 posts of all time",
+    x = "Number of Posts",
+    y = "Topic"
+  ) +
+  theme_minimal()
+by_flair_all
 
-## Finding 2: Relationship between domain name and post score
+# past year
+by_flair_year <- top_year %>% 
+  group_by(flair) %>% 
+  summarize(count_id=n_distinct(id)) %>% 
+  arrange(desc(count_id)) %>% 
+  ggplot(aes(x = count_id, y=reorder(flair, count_id), fill=flair)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(count_id > 10) +
+  labs(
+    title = "Top r/science posts by topic",
+    subtitle = "Top 100 posts last year (2022)",
+    x = "Number of Posts",
+    y = "Topic"
+  ) +
+  theme_minimal()
+by_flair_year
 
+# past month
+by_flair_month <- top_month %>% 
+  group_by(flair) %>% 
+  summarize(count_id=n_distinct(id)) %>% 
+  arrange(desc(count_id)) %>% 
+  ggplot(aes(x = count_id, y=reorder(flair, count_id), fill=flair)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(count_id > 10) +
+  labs(
+    title = "Top r/science posts by topic",
+    subtitle = "Top 100 posts last month (December 2022)",
+    x = "Number of Posts",
+    y = "Topic"
+  ) +
+  theme_minimal()
+by_flair_month
+```
 
+## Finding 2: Relationship between sources and post score
+
+The top posts link to 60+ source websites (identified by domain name, e.g. academictimes.com). For the top posts of all time, no single source has more than 5 posts linked to it. However, for the past year, 14 unique posts come from psypost.org. For the past month, 17 posts come from psypost.org. This indicates a recent increase in the popularity of posts from this website.
+
+```{r}
+# all-time
+by_domain_all <- top_all %>% 
+  group_by(domain) %>% 
+  summarize(count_id=n_distinct(id)) %>% 
+  arrange(desc(count_id)) %>% 
+  head(10) %>% 
+  ggplot(aes(x = count_id, y=reorder(domain, count_id), fill=domain)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(count_id > 10) +
+  labs(
+    title = "Top 10 sources for r/science",
+    subtitle = "For the top 100 posts of all time",
+    x = "Number of Posts",
+    y = "Topic"
+  ) +
+  theme_minimal()
+by_domain_all
+
+# past year
+by_domain_year <- top_year %>% 
+  group_by(domain) %>% 
+  summarize(count_id=n_distinct(id)) %>% 
+  arrange(desc(count_id)) %>% 
+  head(10) %>% 
+  ggplot(aes(x = count_id, y=reorder(domain, count_id), fill=domain)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(count_id > 10) +
+  labs(
+    title = "Top 10 sources for r/science",
+    subtitle = "Top 100 posts last year (2022)",
+    x = "Number of Posts",
+    y = "Topic"
+  ) +
+  theme_minimal()
+by_domain_year
+
+# past month
+by_domain_month <- top_month %>% 
+  group_by(domain) %>% 
+  summarize(count_id=n_distinct(id)) %>% 
+  arrange(desc(count_id)) %>% 
+  head(10) %>% 
+  ggplot(aes(x = count_id, y=reorder(domain, count_id), fill=domain)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(count_id > 10) +
+  labs(
+    title = "Top 10 sources for r/science",
+    subtitle = "Top 100 posts last month (December 2022)",
+    x = "Number of Posts",
+    y = "Topic"
+  ) +
+  theme_minimal()
+by_domain_month
+```
 
 ## Finding 3: Word frequency in post titles
+
 
 
 ## Finding 4: Comparing word frequency to other science sources
