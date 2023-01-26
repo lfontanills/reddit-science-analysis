@@ -4,92 +4,99 @@ library(textdata) # Sentiment analysis
 library(wordcloud) # Wordclouds
 library(readr)
 
-science_texts <- read_csv("science nature titles - Sheet1.csv")
-science_texts
+nature_titles <- read_csv("nature-titles.csv")
 
 # restructure one token per row: unnest tokens
-tidy_science <-science_texts %>% 
+tidy_nature <-nature_texts %>% 
   unnest_tokens(word, titles)
-tidy_science
 
 # remove stop words
-
 data("stop_words")
 
 # customize stop words
-custom_stop_words <- bind_rows(tibble(word = c(1:2022),
-                                      lexicon = c("custom")),
-                               stop_words)
 
-tidy_science <- tidy_science %>% 
+tidy_nature <- tidy_nature %>% 
   anti_join(custom_stop_words)
-tidy_science
+tidy_nature
 
-tidy_science %>% 
-  count(word, sort = TRUE)
+tidy_nature %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
 
-# calculate frequency
-
-frequency_2 <- bind_rows(mutate(tidy_month, timeframe = "month"),
-                       mutate(tidy_year, timeframe = "year"),
-                       mutate(tidy_science, timeframe = "journals")) %>% 
-  mutate(word = str_extract(word, "[a-z']+")) %>% 
-  count(timeframe, word) %>% 
-  group_by(timeframe) %>% 
-  mutate(proportion = n / sum(n)) %>% 
-  select(-n) %>% 
-  pivot_wider(names_from = timeframe, values_from = proportion) %>% 
-  pivot_longer(`month`:`year`,
-               names_to = "timeframe", values_to = "proportion")
-
-frequency_2
-
-# correlation tests
-
-cor.test(data = frequency_2[frequency_2$timeframe == "month",],
-         ~ proportion + `journals`)
-
-cor.test(data = frequency_2[frequency_2$timeframe == "year",],
-         ~ proportion + `journals`)
-
-## add more data points from popular science psych/social science sources
+## add more data points from popular science psych/social science source
 library(readr)
-more_science_titles <- read_csv("frontiers science nature titles - Sheet1.csv")
-View(frontiers_science_nature_titles_Sheet1)
+frontiers_titles <- read_csv("frontiers-titles.csv")
 
 # restructure one token per row: unnest tokens
-tidy_more_science <-more_science_titles %>% 
+tidy_frontiers <-frontiers_titles %>% 
   unnest_tokens(word, titles)
-tidy_more_science
 
 # remove stop words
-tidy_more_science <- tidy_more_science %>% 
+tidy_frontiers <- tidy_frontiers %>% 
   anti_join(custom_stop_words)
-tidy_more_science
 
-tidy_more_science %>% 
-  count(word, sort = TRUE)
+
+tidy_frontiers %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
+
+# word clouds
+
+tidy_nature %>% 
+  count(word) %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30))
+
+tidy_frontiers %>% 
+  count(word) %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30))
+
 
 # calculate frequency
 
-frequency_3 <- bind_rows(mutate(tidy_month, timeframe = "month"),
-                         mutate(tidy_year, timeframe = "year"),
-                         mutate(tidy_more_science, timeframe = "journals2")) %>% 
+frequency_compare <- bind_rows(mutate(tidy_all, category = "reddit"),
+                         mutate(tidy_nature, category = "nature"),
+                         mutate(tidy_frontiers, category = "frontiers")) %>% 
   mutate(word = str_extract(word, "[a-z']+")) %>% 
-  count(timeframe, word) %>% 
-  group_by(timeframe) %>% 
+  count(category, word) %>% 
+  group_by(category) %>% 
   mutate(proportion = n / sum(n)) %>% 
   select(-n) %>% 
-  pivot_wider(names_from = timeframe, values_from = proportion) %>% 
-  pivot_longer(`month`:`year`,
-               names_to = "timeframe", values_to = "proportion")
+  pivot_wider(names_from = category, values_from = proportion) %>% 
+  pivot_longer(`nature`:`frontiers`,
+               names_to = "category", values_to = "proportion")
 
-frequency_3
+# see frequency of top reddit words in journal blogs
+
+frequency_compare %>% 
+  filter (word != "NA") %>% 
+  filter(category == "nature") %>% 
+  arrange(desc(reddit)) %>% 
+  print(n=20)
+
+frequency_compare %>% 
+  filter (word != "NA") %>% 
+  filter(category == "frontiers") %>% 
+  arrange(desc(reddit)) %>% 
+  print(n=20)
 
 # correlation tests
+cor.test(data = frequency_compare[frequency_compare$category == "nature",],
+         ~ proportion + `reddit`)
 
-cor.test(data = frequency_3[frequency_3$timeframe == "month",],
-         ~ proportion + `journals2`)
+cor.test(data = frequency_compare[frequency_compare$category == "frontiers",],
+         ~ proportion + `reddit`)
 
-cor.test(data = frequency_3[frequency_3$timeframe == "year",],
-         ~ proportion + `journals2`)
+# plot frequencies
+
+ggplot(frequency_compare, aes(x = proportion, y = `reddit`, 
+                      color = abs(`reddit` - proportion))) +
+  geom_abline(color = "gray40", lty = 2) +
+  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
+  geom_text(aes(label = word), check_overlap = TRUE, vjust = 1.5) +
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_color_gradient(limits = c(0, 0.001), 
+                       low = "darkslategray4", high = "gray75") +
+  facet_wrap(~category, ncol = 2) +
+  theme(legend.position="none") +
+  labs(y = "Reddit", x = NULL)

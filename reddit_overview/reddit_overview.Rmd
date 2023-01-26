@@ -300,6 +300,39 @@ tidy_month %>%
 
 ## Finding 4: Comparing word frequency to other science sources
 
+The words in reddit top posts titles are very weakly correlated with the words from the homepages of two popular science sources, [Nature](https://www.nature.com/) and [Frontiers](https://www.frontiersin.org/articles?domain=all) (psychology, social science, and health only). Wordclouds of the most common words from these sources look very different to the reddit wordclouds.
+
+```{r}
+nature_titles <- read_csv("~/Documents/Projects/reddit-science-analysis-2/nature-titles.csv")
+frontiers_titles <- read_csv("~/Documents/Projects/reddit-science-analysis-2/frontiers-titles.csv")
+
+# restructure one token per row: unnest tokens
+tidy_nature <-nature_titles %>% 
+  unnest_tokens(word, titles)
+
+# remove stop words
+tidy_nature <- tidy_nature %>% 
+  anti_join(custom_stop_words)
+
+# restructure one token per row: unnest tokens
+tidy_frontiers <-frontiers_titles %>% 
+  unnest_tokens(word, titles)
+
+# remove stop words
+tidy_frontiers <- tidy_frontiers %>% 
+  anti_join(custom_stop_words)
+
+# word clouds
+
+tidy_nature %>% 
+  count(word) %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30))
+
+tidy_frontiers %>% 
+  count(word) %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30))
+```
+
 
 ## Conclusion
 ***

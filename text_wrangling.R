@@ -218,19 +218,9 @@ tidy_all %>%
 
 tidy_year %>% 
   count(word) %>% 
-  filter(word != "study") %>% 
-  filter(word != "found") %>% 
-  filter(word != "suggests") %>% 
-  filter(word != "research") %>% 
-  filter(word != "researchers") %>% 
   with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 30))
 
 tidy_month %>% 
   count(word) %>% 
-  filter(word != "study") %>% 
-  filter(word != "found") %>% 
-  filter(word != "suggests") %>% 
-  filter(word != "research") %>% 
-  filter(word != "researchers") %>% 
   with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 30))
 
