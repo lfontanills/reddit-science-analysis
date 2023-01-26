@@ -52,7 +52,7 @@ cor.test(data = frequency_2[frequency_2$timeframe == "month",],
 cor.test(data = frequency_2[frequency_2$timeframe == "year",],
          ~ proportion + `journals`)
 
-## add more data pints from popular science psych/social science sources
+## add more data points from popular science psych/social science sources
 library(readr)
 more_science_titles <- read_csv("frontiers science nature titles - Sheet1.csv")
 View(frontiers_science_nature_titles_Sheet1)

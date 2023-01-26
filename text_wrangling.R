@@ -8,9 +8,9 @@ library(wordcloud) # Wordclouds
 
 # subset dataframes with title text, flair, domain
 
-text_month <- top_month[,c("post_title")]
-text_year <- top_year[,c("post_title")]
-text_all <- top_all[,c("post_title")]
+text_month <- top_month[c("post_title")]
+text_year <- top_year[c("post_title")]
+text_all <- top_all[c("post_title")]
 
 
 # restructure one token per row: unnest tokens
@@ -31,67 +31,112 @@ tidy_all
 data("stop_words")
 
 # customize stop words
-custom_stop_words <- bind_rows(tibble(word = c(1:2022),
+list_num <- as.character(1:3000)
+list_words <- c("study", "found", "scientist", "scientists", "research", "researchers", "suggests", "finding")
+
+custom_stop_words <- bind_rows(tibble(word = list_num,
                                       lexicon = c("custom")),
                                stop_words)
 
+custom_stop_words <- bind_rows(tibble(word = list_words,
+                                      lexicon = c("custom")),
+                               custom_stop_words)
+
+custom_stop_words <- as.data.frame(custom_stop_words)
+
+
 tidy_month <- tidy_month %>% 
-  anti_join(stop_words)
+  anti_join(custom_stop_words)
+
 
 tidy_year <- tidy_year %>% 
-  anti_join(stop_words)
+  anti_join(custom_stop_words)
 
 tidy_all <- tidy_all %>% 
-  anti_join(stop_words)
+  anti_join(custom_stop_words)
 
 # find most common words
 
 tidy_month %>% 
-  count(word, sort = TRUE)
+  count(word, sort = TRUE) %>% 
+  head()
 
 tidy_year %>% 
-  count(word, sort = TRUE)
+  count(word, sort = TRUE) %>% 
+  head()
 
 tidy_all %>% 
-  count(word, sort = TRUE)
+  count(word, sort = TRUE) %>% 
+  head()
+
+# Export to csv
+
+write.csv(tidy_all, "~/Documents/Projects/reddit-science-analysis-2/tidy_all.csv")
+write.csv(tidy_year, "~/Documents/Projects/reddit-science-analysis-2/tidy_year.csv")
+write.csv(tidy_month, "~/Documents/Projects/reddit-science-analysis-2/tidy_month.csv")
 
 # calculate word frequencies
 
-frequency <- bind_rows(mutate(tidy_month, timeframe = "month"),
+frequency_month <- tidy_month %>% 
+  mutate(word = str_extract(word, "[a-z']+")) %>% 
+  filter(word != "NA") %>% 
+  count(word) %>% 
+  mutate(proportion = n / sum(n)) %>% 
+  arrange(desc(proportion))
+head(frequency_month, 10)
+
+
+frequency_year <- tidy_year %>% 
+  mutate(word = str_extract(word, "[a-z']+")) %>% 
+  filter(word != "NA") %>% 
+  count(word) %>% 
+  mutate(proportion = n / sum(n)) %>% 
+  arrange(desc(proportion))
+head(frequency_year, 10)
+
+frequency_all <- tidy_all %>% 
+  mutate(word = str_extract(word, "[a-z']+")) %>% 
+  filter(word != "NA") %>% 
+  count(word) %>% 
+  mutate(proportion = n / sum(n)) %>% 
+  arrange(desc(proportion))
+head(frequency_all, 10)
+  
+frequency_compare <- bind_rows(mutate(tidy_month, timeframe = "month"),
                        mutate(tidy_year, timeframe = "year"),
                        mutate(tidy_all, timeframe = "all time")) %>% 
   mutate(word = str_extract(word, "[a-z']+")) %>% 
+  filter(word != "NA") %>% 
   count(timeframe, word) %>% 
   group_by(timeframe) %>% 
   mutate(proportion = n / sum(n)) %>% 
   select(-n) %>% 
   pivot_wider(names_from = timeframe, values_from = proportion) %>% 
   pivot_longer(`month`:`year`,
-               names_to = "timeframe", values_to = "proportion")
-  
-frequency
-  
-# plot frequencies
+               names_to = "timeframe", values_to = "proportion") %>% 
+  arrange(desc(proportion))
+head(frequency_compare, 50)
 
-ggplot(frequency, aes(x=proportion, y=`all time`,
+
+# plot frequencies - 
+
+ggplot(frequency_compare, aes(x=proportion, y=`all time`,
                       color = abs(`all time` - proportion))) +
   geom_abline(color = "gray40", lty = 2) +
   geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
   geom_text(aes(label = word), check_overlap = TRUE, vjust = 1.5) +
-  scale_x_log10(labels = percent_format()) +
-  scale_y_log10(labels = percent_format()) +
   scale_color_gradient(limits = c(0, 0.001), 
                        low = "darkslategray4", high = "gray75") +
   facet_wrap(~timeframe, ncol = 2) +
   theme(legend.position="none") +
   labs(y = "all time", x = NULL)
  
-# test correlations
+# test correlations 
 
-cor.test(data = frequency[frequency$timeframe == "month",],
+cor.test(data = frequency_compare[frequency_compare$timeframe == "month",],
          ~ proportion + `all time`)
 
-cor.test(data = frequency[frequency$timeframe == "year",],
+cor.test(data = frequency_compare[frequency_compare$timeframe == "year",],
          ~ proportion + `all time`)
 
 # sentiment analysis
@@ -168,18 +213,24 @@ bing_word_counts %>%
 # wordclouds - fix scale later
 
 tidy_all %>% 
-  anti_join(custom_stop_words) %>% 
   count(word) %>% 
-  with(wordcloud(word, n, max.words = 50))
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 30))
 
 tidy_year %>% 
-  anti_join(custom_stop_words) %>% 
   count(word) %>% 
-  with(wordcloud(word, n, max.words = 50))
+  filter(word != "study") %>% 
+  filter(word != "found") %>% 
+  filter(word != "suggests") %>% 
+  filter(word != "research") %>% 
+  filter(word != "researchers") %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 30))
 
 tidy_month %>% 
-  anti_join(custom_stop_words) %>% 
   count(word) %>% 
-  with(wordcloud(word, n, max.words = 50))
-
+  filter(word != "study") %>% 
+  filter(word != "found") %>% 
+  filter(word != "suggests") %>% 
+  filter(word != "research") %>% 
+  filter(word != "researchers") %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 30))
 

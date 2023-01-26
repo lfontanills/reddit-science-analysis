@@ -109,10 +109,15 @@ options(dplyr.summarise.inform = FALSE)
 
 I created three data frames, one for the top posts of all-time, one for the top posts last year, and one for the top posts last month (as of December 2022).
 ```{r}
-# Show it:
+# Whole dataset
 top_all <- read.csv("~/Documents/Projects/reddit-science-analysis-2/top_all.csv")
 top_year <- read.csv("~/Documents/Projects/reddit-science-analysis-2/top_year.csv")
 top_month <- read.csv("~/Documents/Projects/reddit-science-analysis-2/top_month.csv")
+
+# Post titles only
+tidy_all <- read.csv("~/Documents/Projects/reddit-science-analysis-2/tidy_all.csv")
+tidy_year <- read.csv("~/Documents/Projects/reddit-science-analysis-2/tidy_year.csv")
+tidy_month <- read.csv("~/Documents/Projects/reddit-science-analysis-2/tidy_month.csv")
 
 ```
 
@@ -121,6 +126,8 @@ The top_all file has `r nrow(top_all)` lines and `r ncol(top_all)` columns. It i
 The top_year file has `r nrow(top_year)` lines and `r ncol(top_year)` columns. It is ready to be analyzed.
 
 The top_month file has `r nrow(top_month)` lines and `r ncol(top_month)` columns. It is ready to be analyzed.
+
+The tidy_all file contains `r nrow(tidy_all)` words. The tidy_year file contanils `r nrow(tidy_year` words. The tidy_month file contanils `r nrow(tidy_month)` words.
 
 # Analysis
 ***
@@ -275,15 +282,26 @@ by_domain_month
 
 ## Finding 3: Word frequency in post titles
 
+To find the most common words in top post titles, I created dataframes with just post titles, then used unnest_tokens() to separate each word into its own column. I filtered out stopwords and created wordclouds to show the 30 most frequent words for the last month, year, and all time. 
+```{r}
 
+tidy_all %>% 
+  count(word) %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 20))
+
+tidy_year %>% 
+  count(word) %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 20))
+
+tidy_month %>% 
+  count(word) %>% 
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 20))
+```
 
 ## Finding 4: Comparing word frequency to other science sources
 
 
-## Appendix
-add scales for score, num comments, upvote ratio
-
-# Conclusion
+## Conclusion
 ***
 <!-- Read more about this template [here](https://github.com/holtzy/epuRate). -->
 
