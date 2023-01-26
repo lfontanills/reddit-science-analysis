@@ -27,8 +27,11 @@ I looked at the frequency of words in top post titles. I also made a wordcloud.
 - tidyverse
 - lubridate 
 - textdata (Sentiment analysis)
+- tidytext
 - wordcloud 
 - readr
+- gghighlight
+- skimr
 
 ## Notes
 
