@@ -22,6 +22,8 @@ output:
 
 > I've read reddit.com/r/science for years, and I had casually observed some patterns in the types of posts that were most upvoted. I wanted to test whether my instincts were correct about the types of posts users favored. 
 
+> I noticed that, in the past few months, I have seen more and more highly upvoted posts from psypost.com, about topics like marijuana, sex and sexuality (particularly about women), and hot-button issues in the U.S., like political divisions and systemic racism. It is interesting that, on a subreddit with posts on lots of different topics -- from particle physics to climate change to economics -- current events and social sciences most frequently make it to the front page. Are the users of r/science really that into pop psychology, or am I seeing things?
+
 > In December 2022 I used a python script to scrape the top posts from reddit.com/r/science. I scraped the top 100 posts of all time, the top 100 posts of the past year, and the top 100 posts of the past month.  I'm hoping that looking at three time periods (past-month, past-year, and all-time) helps me see if any topics are amplified or diminished by selection (upvoting) over time. The subreddit has grown over time, so more recent posts are favored in the all-time list.
 
 > Posts are ranked based on their "score" (or, number of upvotes).  The subreddit can receive dozens of posts in a single day, so I believe that my sample is an accurate representation of the most popular topics. 
@@ -99,6 +101,7 @@ library(tidyverse)
 library(lubridate)
 library(skimr)
 library(textdata) # sentiment analysis
+library(tidytext)
 library(readr) # NLP
 library(gghighlight) # graphing
 library(wordcloud) 
@@ -127,7 +130,7 @@ The top_year file has `r nrow(top_year)` lines and `r ncol(top_year)` columns. I
 
 The top_month file has `r nrow(top_month)` lines and `r ncol(top_month)` columns. It is ready to be analyzed.
 
-The tidy_all file contains `r nrow(tidy_all)` words. The tidy_year file contanils `r nrow(tidy_year` words. The tidy_month file contanils `r nrow(tidy_month)` words.
+The tidy_all file contains `r nrow(tidy_all)` words. The tidy_year file contanils `r nrow(tidy_year)` words. The tidy_month file contanils `r nrow(tidy_month)` words.
 
 # Analysis
 ***
@@ -302,28 +305,11 @@ tidy_month %>%
 
 The words in reddit top posts titles are very weakly correlated with the words from the homepages of two popular science sources, [Nature](https://www.nature.com/) and [Frontiers](https://www.frontiersin.org/articles?domain=all) (psychology, social science, and health only). Wordclouds of the most common words from these sources look very different to the reddit wordclouds.
 
-```{r}
-nature_titles <- read_csv("~/Documents/Projects/reddit-science-analysis-2/nature-titles.csv")
-frontiers_titles <- read_csv("~/Documents/Projects/reddit-science-analysis-2/frontiers-titles.csv")
-
-# restructure one token per row: unnest tokens
-tidy_nature <-nature_titles %>% 
-  unnest_tokens(word, titles)
-
-# remove stop words
-tidy_nature <- tidy_nature %>% 
-  anti_join(custom_stop_words)
-
-# restructure one token per row: unnest tokens
-tidy_frontiers <-frontiers_titles %>% 
-  unnest_tokens(word, titles)
-
-# remove stop words
-tidy_frontiers <- tidy_frontiers %>% 
-  anti_join(custom_stop_words)
+```{r warning=FALSE}
+tidy_nature <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_nature.csv")
+tidy_frontiers <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_frontiers.csv")
 
 # word clouds
-
 tidy_nature %>% 
   count(word) %>% 
   with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30))
@@ -336,6 +322,9 @@ tidy_frontiers %>%
 
 ## Conclusion
 ***
+
+> Reddit is, first and foremost, a social media site. The most upvoted posts are those favored by the user base. Reddit's r/science skews heavily toward psychology, social science, and health articles. I expected that posts would more frequently link to science blogs and magazines (rather than peer-reviewed journals), but I was surprised by how overrepresented one site in particular -- psypost.com. was in the top posts of the past year and all time. These posts are highly upvoted and have high engagement. Personally, I would love to see more diversity in the top posts, in terms of both sources and topics, because if I wanted my feed to be a series of psypost articles...well, I'd just go straight to psypost. 
+
 <!-- Read more about this template [here](https://github.com/holtzy/epuRate). -->
 
 <!-- Learn how to custom your R Markdown document [here](https://holtzy.github.io/Pimp-my-rmd/). -->
