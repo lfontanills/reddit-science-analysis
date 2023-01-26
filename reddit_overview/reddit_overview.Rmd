@@ -290,15 +290,15 @@ To find the most common words in top post titles, I created dataframes with just
 
 tidy_all %>% 
   count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 20))
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 30, scale=c(3.5,0.5)))
 
 tidy_year %>% 
   count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 20))
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Blues"))(50), max.words = 30, scale=c(3.5,0.5)))
 
 tidy_month %>% 
   count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 20))
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Purples"))(50), max.words = 30, scale=c(3.5,0.5)))
 ```
 
 ## Finding 4: Comparing word frequency to other science sources
@@ -312,11 +312,11 @@ tidy_frontiers <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_
 # word clouds
 tidy_nature %>% 
   count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30))
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30, scale=c(3.5,0.5)))
 
 tidy_frontiers %>% 
   count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30))
+  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30, scale=c(3.5,0.5)))
 ```
 
 
