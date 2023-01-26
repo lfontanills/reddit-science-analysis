@@ -100,3 +100,8 @@ ggplot(frequency_compare, aes(x = proportion, y = `reddit`,
   facet_wrap(~category, ncol = 2) +
   theme(legend.position="none") +
   labs(y = "Reddit", x = NULL)
+
+# export to csv
+
+write.csv(tidy_nature, file = "~/Documents/Projects/reddit-science-analysis-2/tidy_nature.csv")
+write.csv(tidy_frontiers, file = "~/Documents/Projects/reddit-science-analysis-2/tidy_frontiers.csv")
