@@ -1,5 +1,5 @@
 ---
-title: "NLP with R: Analyzing top posts on r/science"
+title: "Analyzing post topics and titles on reddit.com/r/science"
 author: "Laura Fontanills"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 mail: "lfontanills@gmail.com"
