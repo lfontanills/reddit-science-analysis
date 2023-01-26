@@ -13,3 +13,6 @@ top_all.csv
 top_month.csv
 top_year.csv
 reddit_overview/reddit_overview.html
+by_flair_all.csv
+by_flair_year.csv
+by_flair_month.csv
