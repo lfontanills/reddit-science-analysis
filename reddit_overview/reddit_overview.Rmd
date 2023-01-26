@@ -290,42 +290,43 @@ by_domain_month
 
 ## Finding 3: Word frequency in post titles
 
-To find the most common words in top post titles, I created dataframes with just post titles, then used unnest_tokens() to separate each word into its own column. I filtered out stopwords and created wordclouds to show the 30 most frequent words for the last month, year, and all time. 
+To find the most common words in top post titles, I created dataframes with just post titles, then used unnest_tokens() to separate each word into its own column. I filtered out stopwords and created wordclouds to show the most frequent words in the titles of the top posts of all time. The word "people" appeared 12 times, "children" appeared 8 times, "sex" appeared 8 times, "life" appeared 7 times, and "U.S." appeared 6 times.
 ```{r}
 
 all_words <- tidy_all %>% count(word, sort=TRUE)
-wordcloud2(all_words, size = 1.6, )
+wordcloud2(all_words, size = 1.6)
+```
+
+
+
+The past-year word list looks different from the all-time list, and represents more recent trends on the subreddit. The word "black" appeared 8 times, "woman" appeared 8 times, and "lung" appeared 7 times.
+```{r}
 
 year_words <- tidy_year %>% count(word, sort=TRUE)
 wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
 
-month_words <- tidy_month %>% count(word, sort=TRUE)
-wordcloud2(month_words, size = 1.6, color=(c("purple","blue")))
 ```
 
-## Finding 4: Comparing word frequency to other science sources
 
-The words in reddit top posts titles are very weakly correlated with the words from the homepages of two popular science sources, [Nature](https://www.nature.com/) and [Frontiers](https://www.frontiersin.org/articles?domain=all) (psychology, social science, and health only). Wordclouds of the most common words from these sources look very different to the reddit wordclouds.
+## Finding 4: Comparing word frequency to another science source
 
-```{r warning=FALSE}
-tidy_nature <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_nature.csv", show_col_types = FALSE)
+The words in reddit top posts titles are very weakly correlated with the words from the homepages of a popular science source, [Frontiers](https://blog.frontiersin.org/). I chose Frontiers because  it is an open-source journal with a webpage that posts article summaries and science news, much like r/science does. There are some similarities between this wordcloud and the all-time wordcloud, but some of the more frequently-used words in the Reddit wordcloud are missing from the Frontiers wordcloud (e.g. "sex", "life", and "U.S.". Furthermore, no one word appears as often as the top words in Reddit titles: "DNA" appears 6 times, and "science" appears 4 times.
+
+```{r warning=FALSE, include=FALSE}
 tidy_frontiers <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_frontiers.csv", show_col_types = FALSE)
 
-# word clouds
-
-nature_words <- tidy_nature %>% count(word, sort=TRUE)
-wordcloud2(nature_words, size = 1.6, color=(c("red","pink")))
-
+```
+```{r}
+# word cloud
 frontiers_words <- tidy_frontiers %>% count(word, sort=TRUE)
 wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
-
 ```
-
 
 ## Conclusion
 ***
 
-> Reddit is, first and foremost, a social media site. The most upvoted posts are those favored by the user base. Reddit's r/science skews heavily toward psychology, social science, and health articles. I expected that posts would more frequently link to science blogs and magazines (rather than peer-reviewed journals), but I was surprised by how overrepresented one site in particular -- psypost.com. was in the top posts of the past year and all time. These posts are highly upvoted and have high engagement. Personally, I would love to see more diversity in the top posts, in terms of both sources and topics, because if I wanted my feed to be a series of psypost articles...well, I'd just go straight to psypost. 
+> Reddit is, first and foremost, a social media site. The most upvoted posts are those favored by the user base. Reddit's r/science skews heavily toward psychology, social science, and health articles. I expected that posts would more frequently link to science blogs and magazines (rather than peer-reviewed journals), but I was surprised by how overrepresented one site in particular -- psypost.com. was in the top posts of the past year and all time. These posts are highly upvoted and have high engagement. Based on titles, some words appear very frequently in the top posts. 
+Personally, I would love to see more diversity in the top posts, in terms of both sources and topics, because if I wanted my feed to be a series of psypost articles...well, I'd just go straight to psypost. 
 
 <!-- Read more about this template [here](https://github.com/holtzy/epuRate). -->
 

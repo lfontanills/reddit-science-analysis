@@ -219,6 +219,10 @@ logo_reddit
 year_words <- tidy_year %>% count(word, sort=TRUE)
 wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
 
+# save image for later
+img_year <- wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
+img_year
+
 month_words <- tidy_month %>% count(word, sort=TRUE)
 wordcloud2(month_words, size = 1.6, color=(c("purple","blue")))
 
@@ -267,6 +271,8 @@ wordcloud2(nature_words, size = 1.6, color=(c("red","pink")))
 frontiers_words <- tidy_frontiers %>% count(word, sort=TRUE)
 wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
 
+img_frontiers <- wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
+img_frontiers
 
 # calculate frequency
 
