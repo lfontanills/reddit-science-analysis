@@ -104,7 +104,7 @@ library(textdata) # sentiment analysis
 library(tidytext)
 library(readr) # NLP
 library(gghighlight) # graphing
-library(wordcloud) 
+library(wordcloud2) 
 library(rmarkdown)    # You need this library to run this template.
 library(epuRate)      # Install with devtools: install_github("holtzy/epuRate", force=TRUE)
 options(dplyr.summarise.inform = FALSE)
@@ -195,6 +195,7 @@ by_flair_year <- top_year %>%
   arrange(desc(count_id)) %>% 
   ggplot(aes(x = count_id, y=reorder(flair, count_id), fill=flair)) +
   geom_col(show.legend=FALSE) +
+  scale_fill_brewer(palette = "BuGn") +
   gghighlight(count_id > 10) +
   labs(
     title = "Top r/science posts by topic",
@@ -213,6 +214,7 @@ by_flair_month <- top_month %>%
   ggplot(aes(x = count_id, y=reorder(flair, count_id), fill=flair)) +
   geom_col(show.legend=FALSE) +
   gghighlight(count_id > 10) +
+  scale_fill_brewer(palette = "BuPu", direction = -1) +
   labs(
     title = "Top r/science posts by topic",
     subtitle = "Top 100 posts last month (December 2022)",
@@ -254,7 +256,8 @@ by_domain_year <- top_year %>%
   head(10) %>% 
   ggplot(aes(x = count_id, y=reorder(domain, count_id), fill=domain)) +
   geom_col(show.legend=FALSE) +
-  gghighlight(count_id > 10) +
+  scale_fill_brewer(palette = "Greens", direction = -1) +
+  gghighlight(count_id > 10 ) +
   labs(
     title = "Top 10 sources for r/science",
     subtitle = "Top 100 posts last year (2022)",
@@ -273,6 +276,7 @@ by_domain_month <- top_month %>%
   ggplot(aes(x = count_id, y=reorder(domain, count_id), fill=domain)) +
   geom_col(show.legend=FALSE) +
   gghighlight(count_id > 10) +
+  scale_fill_brewer(palette = "PRGn") +
   labs(
     title = "Top 10 sources for r/science",
     subtitle = "Top 100 posts last month (December 2022)",
@@ -288,17 +292,14 @@ by_domain_month
 To find the most common words in top post titles, I created dataframes with just post titles, then used unnest_tokens() to separate each word into its own column. I filtered out stopwords and created wordclouds to show the 30 most frequent words for the last month, year, and all time. 
 ```{r}
 
-tidy_all %>% 
-  count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"BuPu"))(50), max.words = 30, scale=c(3.5,0.5)))
+all_words <- tidy_all %>% count(word, sort=TRUE)
+wordcloud2(all_words, size = 1.6, )
 
-tidy_year %>% 
-  count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Blues"))(50), max.words = 30, scale=c(3.5,0.5)))
+year_words <- tidy_year %>% count(word, sort=TRUE)
+wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
 
-tidy_month %>% 
-  count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Purples"))(50), max.words = 30, scale=c(3.5,0.5)))
+month_words <- tidy_month %>% count(word, sort=TRUE)
+wordcloud2(month_words, size = 1.6, color=(c("purple","blue")))
 ```
 
 ## Finding 4: Comparing word frequency to other science sources
@@ -306,17 +307,17 @@ tidy_month %>%
 The words in reddit top posts titles are very weakly correlated with the words from the homepages of two popular science sources, [Nature](https://www.nature.com/) and [Frontiers](https://www.frontiersin.org/articles?domain=all) (psychology, social science, and health only). Wordclouds of the most common words from these sources look very different to the reddit wordclouds.
 
 ```{r warning=FALSE}
-tidy_nature <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_nature.csv")
-tidy_frontiers <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_frontiers.csv")
+tidy_nature <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_nature.csv", show_col_types = FALSE)
+tidy_frontiers <- read_csv("~/Documents/Projects/reddit-science-analysis-2/tidy_frontiers.csv", show_col_types = FALSE)
 
 # word clouds
-tidy_nature %>% 
-  count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30, scale=c(3.5,0.5)))
 
-tidy_frontiers %>% 
-  count(word) %>% 
-  with(wordcloud(word, n, colors=colorRampPalette(brewer.pal(9,"Greens"))(30), max.words = 30, scale=c(3.5,0.5)))
+nature_words <- tidy_nature %>% count(word, sort=TRUE)
+wordcloud2(nature_words, size = 1.6, color=(c("red","pink")))
+
+frontiers_words <- tidy_frontiers %>% count(word, sort=TRUE)
+wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
+
 ```
 
 
