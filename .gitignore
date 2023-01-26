@@ -16,3 +16,6 @@ reddit_overview/reddit_overview.html
 by_flair_all.csv
 by_flair_year.csv
 by_flair_month.csv
+tidy_all.csv
+tidy_year.csv
+tidy_month.csv
