@@ -9,7 +9,15 @@ library(gghighlight) # Adding to graphs
 
 # calculate word frequencies
 
-frequency_month <- tidy_month %>% 
+frequency_all <- text_all_clean %>% 
+  mutate(word = str_extract(word, "[a-z']+")) %>% 
+  filter(word != "NA") %>% 
+  count(word) %>% 
+  mutate(proportion = n / sum(n)) %>% 
+  arrange(desc(proportion))
+head(frequency_all, 10)
+
+frequency_month <- text_month_clean %>% 
   mutate(word = str_extract(word, "[a-z']+")) %>% 
   filter(word != "NA") %>% 
   count(word) %>% 
@@ -18,25 +26,17 @@ frequency_month <- tidy_month %>%
 head(frequency_month, 10)
 
 
-frequency_year <- tidy_year %>% 
+frequency_year <- text_year_clean %>% 
   mutate(word = str_extract(word, "[a-z']+")) %>% 
   filter(word != "NA") %>% 
   count(word) %>% 
   mutate(proportion = n / sum(n)) %>% 
   arrange(desc(proportion))
 head(frequency_year, 10)
-
-frequency_all <- tidy_all %>% 
-  mutate(word = str_extract(word, "[a-z']+")) %>% 
-  filter(word != "NA") %>% 
-  count(word) %>% 
-  mutate(proportion = n / sum(n)) %>% 
-  arrange(desc(proportion))
-head(frequency_all, 10)
   
-frequency_compare <- bind_rows(mutate(tidy_month, timeframe = "month"),
-                       mutate(tidy_year, timeframe = "year"),
-                       mutate(tidy_all, timeframe = "all time")) %>% 
+frequency_compare <- bind_rows(mutate(text_month_clean, timeframe = "month"),
+                       mutate(text_year_clean, timeframe = "year"),
+                       mutate(text_all_clean, timeframe = "all time")) %>% 
   mutate(word = str_extract(word, "[a-z']+")) %>% 
   filter(word != "NA") %>% 
   count(timeframe, word) %>% 
@@ -71,165 +71,120 @@ cor.test(data = frequency_compare[frequency_compare$timeframe == "month",],
 cor.test(data = frequency_compare[frequency_compare$timeframe == "year",],
          ~ proportion + `all time`)
 
+# wordclouds
+
+
+
 # sentiment analysis
 
-get_sentiments("afinn")
-get_sentiments("bing")
 get_sentiments("nrc")
 
-all_time_sentiment <- tidy_all %>% 
-  inner_join(get_sentiments("nrc")) %>% 
-  count(flair, index = all_time_rank %/% 80, sentiment) %>% 
-  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
-  mutate(sentiment = positive - negative)
-all_time_sentiment
+all_time_sentiment <- text_all_clean %>% 
+  inner_join(get_sentiments("nrc"), by = "word")
 
-afinn <- tidy_all %>% 
-  inner_join(get_sentiments("afinn")) %>% 
-  group_by(index = all_time_rank %/% 80) %>% 
-  mutate(method = "AFINN")
-  
-bing_and_nrc <- bind_rows(
-  tidy_all %>% 
-    inner_join(get_sentiments("bing")) %>% 
-   mutate(method = "Bing et al."),
-  tidy_all %>% 
-    inner_join(get_sentiments("nrc") %>% 
-                 filter(sentiment %in% c("positive", "negative"))
-               ) %>% 
-    mutate(method = "NRC")) %>% 
-  count(method, index = all_time_rank %/% 80, sentiment) %>% 
-  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
-  mutate(sentiment = positive - negative)
-  
+year_sentiment <- text_year_clean %>% 
+  inner_join(get_sentiments("nrc"), by = "word")
 
-  # plot sentiment analysis
+month_sentiment <- text_month_clean %>% 
+  inner_join(get_sentiments("nrc"), by = "word")
 
-bind_rows(afinn,
-          bing_and_nrc) %>% 
-  ggplot(aes(index, sentiment, fill = method)) + 
-  geom_col(show.legend = FALSE) + 
-  facet_wrap(~method)
-
-
-get_sentiments("nrc") %>% 
-  filter(sentiment %in% c("positive", "negaative")) %>% 
-  count(sentiment)
-
-get_sentiments("bing") %>% 
-  count(sentiment)
-
-get_sentiments("afinn") %>% 
-  count(value)
-
-# most common +, - words
-
-bing_word_counts <- tidy_all %>% 
-  inner_join(get_sentiments("bing")) %>% 
-  count(word, sentiment, sort = TRUE) %>% 
-  ungroup()
-
-bing_word_counts %>% 
+sentiment_all_plot <- all_time_sentiment %>% 
   group_by(sentiment) %>% 
-  slice_max(n, n=10) %>% 
-  ungroup() %>% 
-  mutate(word = reorder(word,n)) %>% 
-  ggplot(aes(n, word, fill = sentiment)) +
-  geom_col(show.legend = FALSE) + 
-  facet_wrap(~sentiment, scales = "free_y") +
-  labs(x = "Contribution to sentiment",
-       y = NULL)
+  summarize(num_words = n()) %>% 
+  arrange(desc(num_words)) %>% 
+  ggplot(aes(x = num_words, y=reorder(sentiment, num_words), fill=sentiment)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(num_words > 100) +
+  labs(
+    title = "Sentiment analysis of post titles",
+    subtitle = "Top 100 posts of all time",
+    x = "Number of words",
+    y = "Sentiment"
+  ) +
+  theme_minimal()
+sentiment_all_plot
 
+sentiment_year_plot <- year_sentiment %>% 
+  group_by(sentiment) %>% 
+  summarize(num_words = n()) %>% 
+  arrange(desc(num_words)) %>% 
+  ggplot(aes(x = num_words, y=reorder(sentiment, num_words), fill=sentiment)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(num_words > 100) +
+  labs(
+    title = "Sentiment analysis of post titles",
+    subtitle = "Top 100 posts last year (2022)",
+    x = "Number of words",
+    y = "Sentiment"
+  ) +
+  theme_minimal()
+sentiment_year_plot
+
+sentiment_month_plot <- month_sentiment %>% 
+  group_by(sentiment) %>% 
+  summarize(num_words = n()) %>% 
+  arrange(desc(num_words)) %>% 
+  ggplot(aes(x = num_words, y=reorder(sentiment, num_words), fill=sentiment)) +
+  geom_col(show.legend=FALSE) +
+  gghighlight(num_words > 100) +
+  labs(
+    title = "Sentiment analysis of post titles",
+    subtitle = "Top 100 posts last month (December 2022)",
+    x = "Number of words",
+    y = "Sentiment"
+  ) +
+  theme_minimal()
+sentiment_month_plot
 
 
 # wordclouds
 
-all_words <- tidy_all %>% count(word, sort=TRUE)
+
+all_words <- text_all_clean %>% count(word, sort=TRUE)
 wordcloud2(all_words, size = 1.6)
 
 # make a logo for later
 logo_reddit <- wordcloud2(all_words, size = 1.6)
 logo_reddit
 
-year_words <- tidy_year %>% count(word, sort=TRUE)
+year_words <- text_year_clean %>% count(word, sort=TRUE)
 wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
 
 # save image for later
 img_year <- wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
 img_year
 
-month_words <- tidy_month %>% count(word, sort=TRUE)
-wordcloud2(month_words, size = 1.6, color=(c("purple","blue")))
+month_words <- text_month_clean %>% count(word, sort=TRUE)
+wordcloud2(year_words, size = 1.6, color = (c("purple","blue")))
 
-
-### Compare to journal news sites - homepages
-
-nature_titles <- read_csv("nature-titles.csv")
-
-# restructure one token per row: unnest tokens
-tidy_nature <-nature_texts %>% 
-  unnest_tokens(word, titles)
-
-# remove stop words
-data("stop_words")
-
-# customize stop words
-
-tidy_nature <- tidy_nature %>% 
-  anti_join(custom_stop_words)
-
-
-nature_words <- tidy_nature %>% 
-  count(word, sort = TRUE) 
 
 ## add more data points from popular science psych/social science source
 library(readr)
 frontiers_titles <- read_csv("frontiers-titles.csv")
 
 # restructure one token per row: unnest tokens
-tidy_frontiers <-frontiers_titles %>% 
+frontiers_titles <-frontiers_titles %>% 
   unnest_tokens(word, titles)
 
 # remove stop words
-tidy_frontiers <- tidy_frontiers %>% 
-  anti_join(custom_stop_words)
+frontiers_clean <- frontiers_titles %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
 
-
-frontiers_words <- tidy_frontiers %>% 
+frontiers_clean %>% 
   count(word, sort = TRUE)
+
+write.csv(frontiers_clean, "~/Documents/projects/reddit-science/frontiers_clean.csv")
 
 # word clouds
 
-nature_words <- tidy_nature %>% count(word, sort=TRUE)
-wordcloud2(nature_words, size = 1.6, color=(c("red","pink")))
-
-frontiers_words <- tidy_frontiers %>% count(word, sort=TRUE)
+frontiers_words <- frontiers_clean %>% count(word, sort=TRUE)
 wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
 
 img_frontiers <- wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
 img_frontiers
 
-# calculate frequency
-
-frequency_compare <- bind_rows(mutate(tidy_all, category = "reddit"),
-                               mutate(tidy_nature, category = "nature"),
-                               mutate(tidy_frontiers, category = "frontiers")) %>% 
-  mutate(word = str_extract(word, "[a-z']+")) %>% 
-  count(category, word) %>% 
-  group_by(category) %>% 
-  mutate(proportion = n / sum(n)) %>% 
-  select(-n) %>% 
-  pivot_wider(names_from = category, values_from = proportion) %>% 
-  pivot_longer(`nature`:`frontiers`,
-               names_to = "category", values_to = "proportion")
-
 # see frequency of top reddit words in journal blogs
-
-frequency_compare %>% 
-  filter (word != "NA") %>% 
-  filter(category == "nature") %>% 
-  arrange(desc(reddit)) %>% 
-  print(n=20)
 
 frequency_compare %>% 
   filter (word != "NA") %>% 
@@ -238,8 +193,6 @@ frequency_compare %>%
   print(n=20)
 
 # correlation tests
-cor.test(data = frequency_compare[frequency_compare$category == "nature",],
-         ~ proportion + `reddit`)
 
 cor.test(data = frequency_compare[frequency_compare$category == "frontiers",],
          ~ proportion + `reddit`)
@@ -261,7 +214,6 @@ ggplot(frequency_compare, aes(x = proportion, y = `reddit`,
 
 # export to csv
 
-write.csv(tidy_nature, file = "~/Documents/Projects/reddit-science-analysis-2/tidy_nature.csv")
-write.csv(tidy_frontiers, file = "~/Documents/Projects/reddit-science-analysis-2/tidy_frontiers.csv")
+write.csv(tidy_frontiers, file = "~/Documents/Projects/reddit-science-analysis/frontiers_clean.csv")
 
 
