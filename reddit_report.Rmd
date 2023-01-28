@@ -16,24 +16,43 @@ output:
     code_folding: "hide"
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-<br><br>
+```{r load packages, include=FALSE}
+library(tidyverse) # data processing and analysis
+library(lubridate) # wrangle dates
+library(skimr) # skim data frames
+library(urltools) # wrangle urls
+```
 
-<!-- > Let's start with a short introduction. Explain briefly what this document is going to talk about. May be add a [useful link](https://github.com/holtzy/epuRate) relative to this project. -->
+# Read this first
 
-> I've read reddit.com/r/science for years, and I had casually observed some patterns in the types of posts that were most upvoted. I wanted to test whether my instincts were correct about the types of posts users favored. 
+If you'd like to skip all the data cleaning steps, click on "Get the data" in the sidebar.
 
-> I noticed that, in the past few months, I have seen more and more highly upvoted posts from psypost.com, about topics like marijuana, sex and sexuality (particularly about women), and hot-button issues in the U.S., like political divisions and systemic racism. It is interesting that, on a subreddit with posts on lots of different topics -- from particle physics to climate change to economics -- current events and social sciences most frequently make it to the front page. Are the users of r/science really that into pop psychology, or am I seeing things?
+# About
 
-> In December 2022 I used a python script to scrape the top posts from reddit.com/r/science. I scraped the top 100 posts of all time, the top 100 posts of the past year, and the top 100 posts of the past month.  I'm hoping that looking at three time periods (past-month, past-year, and all-time) helps me see if any topics are amplified or diminished by selection (upvoting) over time. The subreddit has grown over time, so more recent posts are favored in the all-time list.
+I spend a lot of time on reddit, and a few months ago I noticed that one subreddit I frequent, [r/science](reddit.com/r/science), had more and more posts about pop-psychology getting tons of upvotes. Reddit is a social media site, and scientific journals are notoriously hard to access, so I expect a gap between the types of science content between them. Still, I decided to test my gut feeling that the subreddit's content was changing.
 
-> Posts are ranked based on their "score" (or, number of upvotes).  The subreddit can receive dozens of posts in a single day, so I believe that my sample is an accurate representation of the most popular topics. 
+I want to see what kinds of posts made it to the top of r/science: the posts that have the most upvotes, and therefore the posts that the most people liked and engaged with. What topics interest the average r/science user the most? 
 
 # Scraping Reddit with PRAW
 
-Here's the python script I used to scrape Reddit. I removed my personal information, so the script won't run here; to run this code yourself, you'll need to follow the instructions [this guide](https://praw.readthedocs.io/en/stable/) and use your own credentials.
+I used a python script to scrape r/science top 100 posts over three time periods: the past month, the past year, and all-time. Within these time periods I obtained data for 9 different variables:
+* `...1` ranks the post from 0-99 (0 being the highest rank).
+* `id` is a unique string of letters and numbers that identify each post.
+* `created_unix_utc` is the time the post was created (as a unix number).
+* `post_url` is the url for the website the post links to. This can be from an online news outlet, journal, etc.. Each post has a unique url.
+* `post_title` is the title of the post.
+* `flair` is a tag attached to each post by a moderator that places that post in a category. It represents the post's topic.
+* `score` is the number of times a post was upvoted (each user can upvote a post once).
+* `num_comments` is the number of unique comments on a post.
+* `upvote_ratio` is the ratio of upvotes (indivading user approval) to downvotes (indicating user disapproval).
 
-```{python eval=FALSE, include=FALSE}
+The script won't run here; to run this code yourself, you'll need to follow the instructions [this guide](https://praw.readthedocs.io/en/stable/) and use your own credentials.
+
+```{python scraper.py, eval=FALSE, include=FALSE}
 # import packages
 import praw
 import pandas
@@ -91,27 +110,31 @@ top_posts_all= pandas.DataFrame(posts_dict)
 top_posts_all
 
 top_posts_all.to_csv("Top-Posts-All.csv")
+# repeat for past year, past month
+```
 
+
+# Data cleaning
+
+```{r read raw data frames}
+# create data frame with top 100 posts from the last month
+top_month <- read_csv("Top-Posts-Month.csv")
+
+# create data frame with top 100 posts from the last year
+top_year <- read_csv("Top-Posts-Year.csv")
+
+# create data frame with top 100 posts from all time
+top_all <- read_csv("Top-Posts-All.csv")
 ```
 
 
 # Get the data
-***
-```{r, message=FALSE, warning=FALSE}
-library(tidyverse)
-library(lubridate)
-library(skimr)
-library(textdata) # sentiment analysis
-library(tidytext)
-library(readr) # NLP
-library(gghighlight) # graphing
-library(wordcloud2) 
-library(rmarkdown)    # You need this library to run this template.
-library(epuRate)      # Install with devtools: install_github("holtzy/epuRate", force=TRUE)
-options(dplyr.summarise.inform = FALSE)
-```
 
-I created three data frames, one for the top posts of all-time, one for the top posts last year, and one for the top posts last month (as of December 2022).
+I created individual data frames for the top 100 posts of all time, the last year, and the last month.
+
+I also created data frames containing just the post titles for each time period.
+
+I did not combine these data frames because they each represent a different timescale.
 ```{r}
 # Whole dataset
 top_all <- read.csv("~/Documents/Projects/reddit-science-analysis-2/top_all.csv")
@@ -133,7 +156,7 @@ The top_month file has `r nrow(top_month)` lines and `r ncol(top_month)` columns
 
 The tidy_all file contains `r nrow(tidy_all)` words. The tidy_year file contanils `r nrow(tidy_year)` words. The tidy_month file contanils `r nrow(tidy_month)` words.
 
-# Analysis
+# Analysis and Visualizations
 ***
 Posts are ranked by their score (which is the same as the number of upvotes). Each post has "flair" which designates the topic. Each post has exactly 1 topic flair. I chose to use assigned flair for this analysis, rather than designating my own topics.
 
@@ -322,12 +345,10 @@ frontiers_words <- tidy_frontiers %>% count(word, sort=TRUE)
 wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
 ```
 
-## Conclusion
-***
+# Conclusions
 
-> Reddit is, first and foremost, a social media site. The most upvoted posts are those favored by the user base. Reddit's r/science skews heavily toward psychology, social science, and health articles. I expected that posts would more frequently link to science blogs and magazines (rather than peer-reviewed journals), but I was surprised by how overrepresented one site in particular -- psypost.com. was in the top posts of the past year and all time. These posts are highly upvoted and have high engagement. Based on titles, some words appear very frequently in the top posts. 
+
+Reddit is, first and foremost, a social media site. The most upvoted posts are those favored by the user base. Reddit's r/science skews heavily toward psychology, social science, and health articles. I expected that posts would more frequently link to science blogs and magazines (rather than peer-reviewed journals), but I was surprised by how overrepresented one site in particular -- psypost.com. was in the top posts of the past year and all time. These posts are highly upvoted and have high engagement. Based on titles, some words appear very frequently in the top posts. 
 Personally, I would love to see more diversity in the top posts, in terms of both sources and topics, because if I wanted my feed to be a series of psypost articles...well, I'd just go straight to psypost. 
 
-<!-- Read more about this template [here](https://github.com/holtzy/epuRate). -->
-
-<!-- Learn how to custom your R Markdown document [here](https://holtzy.github.io/Pimp-my-rmd/). -->
+## Some extras
