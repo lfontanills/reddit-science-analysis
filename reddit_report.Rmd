@@ -2,22 +2,21 @@
 title: "Analyzing post topics and titles on reddit.com/r/science"
 author: "Laura Fontanills"
 date: "`r format(Sys.time(), '%d %B %Y')`"
-mail: "lfontanills@gmail.com"
-linkedin: "lfontanills"
-github: "lfontanills"
-home: "lfontanills.github.io"
 # !!! You need to provide a logo image here !!! Or just delete the field for no logo
 # logo: "logo_gallery.png"
-logo: "reddit_logo.png"
+theme: readable
 output:
-  epuRate::epurate:
+  html_document:
+    keep_md: yes
     toc: TRUE
+    toc_float: TRUE
+    toc_collapsed: TRUE
     number_sections: FALSE
     code_folding: "hide"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
 
 ```{r load packages, include=FALSE}
@@ -30,10 +29,6 @@ library(textdata) # Sentiment analysis
 library(wordcloud2) # Wordclouds
 library(gghighlight) # Adding to graphs
 ```
-
-# Read this first
-
-If you'd like to skip all the data cleaning steps, click on "Get the data" in the sidebar.
 
 # About
 
@@ -320,7 +315,7 @@ The top_year file has `r nrow(top_year)` lines and `r ncol(top_year)` columns. I
 
 The top_month file has `r nrow(top_month)` lines and `r ncol(top_month)` columns. It is ready to be analyzed.
 
-The tidy_all file contains `r nrow(tidy_all)` words. The tidy_year file contanils `r nrow(tidy_year)` words. The tidy_month file contanils `r nrow(tidy_month)` words.
+The text_all_clean file contains `r nrow(text_all_clean)` words. The text_year_clean file contanils `r nrow(text_year_clean)` words. The text_month_clean file contanils `r nrow(text_month_clean)` words.
 
 # Analysis and Visualizations
 
