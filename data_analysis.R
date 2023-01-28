@@ -7,23 +7,75 @@ library(textdata) # Sentiment analysis
 library(wordcloud) # Wordclouds
 
 # skim numerical variables
-skim(top_month)
-skim(top_year)
-skim(top_all)
+skim(all_clean)
+skim(year_clean)
+skim(month_clean)
 
 # confirm normal or non-normal distribution (p > 0.05 is normal)
-#all non-normal
-shapiro.test(top_month$score)
-shapiro.test(top_month$num_comments)
-shapiro.test(top_month$upvote_ratio)
+# all non-normal
+shapiro.test(month_clean$score)
+shapiro.test(month_clean$num_comments)
+shapiro.test(month_clean$upvote_ratio)
 
-shapiro.test(top_year$score)
-shapiro.test(top_year$num_comments)
-shapiro.test(top_year$upvote_ratio)
+shapiro.test(year_clean$score)
+shapiro.test(year_clean$num_comments)
+shapiro.test(year_clean$upvote_ratio)
 
-shapiro.test(top_all$score)
-shapiro.test(top_all$num_comments)
-shapiro.test(top_all$upvote_ratio)
+shapiro.test(all_clean$score)
+shapiro.test(all_clean$num_comments)
+shapiro.test(all_clean$upvote_ratio)
+
+# quick viz: post rank vs. num_comments, post_rank vs. score, post_rank vs. upvote ratio
+
+# comments
+
+top_posts_2 %>% 
+  ggplot(aes(x=all_rank, y = num_comments)) +
+  geom_point() +
+  geom_smooth()
+
+top_year %>% 
+  ggplot(aes(x=year_rank, y = num_comments)) +
+  geom_point() +
+  geom_smooth()
+
+top_month %>% 
+  ggplot(aes(x=month_rank, y = num_comments)) +
+  geom_point() +
+  geom_smooth()
+
+# score
+top_all %>% 
+  ggplot(aes(x=all_rank, y = score)) +
+  geom_point() +
+  geom_smooth()
+
+top_year %>% 
+  ggplot(aes(x=year_rank, y = score)) +
+  geom_point() +
+  geom_smooth()
+
+top_month %>% 
+  ggplot(aes(x=month_rank, y = score)) +
+  geom_point() +
+  geom_smooth()
+
+# upvote ratio
+
+top_all %>% 
+  ggplot(aes(x=all_rank, y = upvote_ratio)) +
+  geom_point() +
+  geom_smooth()
+
+top_year %>% 
+  ggplot(aes(x=year_rank, y = upvote_ratio)) +
+  geom_point() +
+  geom_smooth()
+
+top_month %>% 
+  ggplot(aes(x=month_rank, y = upvote_ratio)) +
+  geom_point() +
+  geom_smooth()
 
 # explore relationship between topic and score
 
