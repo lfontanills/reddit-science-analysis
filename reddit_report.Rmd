@@ -127,6 +127,63 @@ top_year <- read_csv("Top-Posts-Year.csv")
 top_all <- read_csv("Top-Posts-All.csv")
 ```
 
+I confirm that all posts are unique by checking the number of distinct post IDs. TRUE indicates that all rows are unique.
+
+```{r check all posts unique}
+n_distinct(top_all$id) == nrow(top_all)
+n_distinct(top_year$id) == nrow(top_year)
+n_distinct(top_month$id) == nrow(top_month)
+```
+
+I change the name of the first column to represent post rank, and add 1 to all rankings so that posts are ranked from 1 to 100.
+
+```{r edit column names - rank}
+
+# change column 1 name from ...1 to rank
+colnames(top_all)[1] <- "all_rank"
+colnames(top_year)[1] <- "year_rank"
+colnames(top_month)[1] <- "month_rank"
+
+# add 1 to all the rankings for clarity
+top_all$all_rank = top_all$all_rank + 1
+top_year$year_rank = top_year$year_rank + 1
+top_month$month_rank = top_month$month_rank + 1
+```
+
+I convert the created_unix field from a number to a datetime, and save this as `created_utc`. This shows the time each post was made in UTC.
+
+```{r create unix_utc datetime}
+
+top_all$created_utc <- as_datetime(top_all$created_unix_utc)
+top_year$created_utc <- as_datetime(top_year$created_unix_utc)
+top_month$created_utc <- as_datetime(top_month$created_unix_utc)
+```
+
+I isolate the domain name from each post url, and save this as post_url. This shows the source website of each post -- sources include news outlets, science magazines, journals, blogs, etc..
+
+```{r create post_url chr}
+
+top_all$domain <- domain(top_all$post_url)
+top_year$domain <- domain(top_year$post_url)
+top_month$domain <- domain(top_month$post_url)
+```
+
+A look at the data summary for top_all shows that the oldest post is from 2015, and the median post is from 2020. More recent posts are overrepresented, so the subreddit must be growing over time. The summary also confirms that posts are ranked from 1 to 100.
+
+```{r}
+summary(top_all)
+summary(top_year)
+summary(top_month)
+```
+
+Let's save the cleaned and transformed data to fresh data frames.
+
+```{r}
+all_clean <- top_all
+year_clean <- top_year
+month_clean <- top_month
+```
+
 
 # Get the data
 
