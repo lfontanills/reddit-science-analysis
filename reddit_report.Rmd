@@ -25,6 +25,9 @@ library(tidyverse) # data processing and analysis
 library(lubridate) # wrangle dates
 library(skimr) # skim data frames
 library(urltools) # wrangle urls
+library(tidytext) # NLP toolkit
+library(textdata) # Sentiment analysis
+library(wordcloud) # Wordclouds
 ```
 
 # Read this first
@@ -116,7 +119,7 @@ top_posts_all.to_csv("Top-Posts-All.csv")
 
 # Data cleaning
 
-```{r read raw data frames}
+```{r read raw data frames, show_col_types = FALSE}
 # create data frame with top 100 posts from the last month
 top_month <- read_csv("Top-Posts-Month.csv")
 
@@ -145,9 +148,9 @@ colnames(top_year)[1] <- "year_rank"
 colnames(top_month)[1] <- "month_rank"
 
 # add 1 to all the rankings for clarity
-top_all$all_rank = top_all$all_rank + 1
-top_year$year_rank = top_year$year_rank + 1
-top_month$month_rank = top_month$month_rank + 1
+top_all$all_rank <- top_all$all_rank + 1
+top_year$year_rank <- top_year$year_rank + 1
+top_month$month_rank <- top_month$month_rank + 1
 ```
 
 I convert the created_unix field from a number to a datetime, and save this as `created_utc`. This shows the time each post was made in UTC.
@@ -170,7 +173,7 @@ top_month$domain <- domain(top_month$post_url)
 
 A look at the data summary for top_all shows that the oldest post is from 2015, and the median post is from 2020. More recent posts are overrepresented, so the subreddit must be growing over time. The summary also confirms that posts are ranked from 1 to 100.
 
-```{r}
+```{r get summary}
 summary(top_all)
 summary(top_year)
 summary(top_month)
@@ -178,12 +181,124 @@ summary(top_month)
 
 Let's save the cleaned and transformed data to fresh data frames.
 
-```{r}
+```{r create cleaned df}
 all_clean <- top_all
 year_clean <- top_year
 month_clean <- top_month
 ```
 
+I'll also make data frames containing just the post titles.
+
+```{r create title-only df}
+text_month <- all_clean[c("post_title")]
+text_year <- year_clean[c("post_title")]
+text_all <- month_clean[c("post_title")]
+```
+
+## Text cleaning
+
+Later on, I will analyze word frequencies in post titles. To do this I need to restructure the data frame so that each word is in its own column (each row still represents one post).
+
+```{r unnest tokens titles}
+
+# restructure one token per row: unnest tokens
+text_month <-text_month %>% 
+  unnest_tokens(word, post_title)
+
+text_year <- text_year %>% 
+  unnest_tokens(word, post_title)
+
+text_all <- text_all %>% 
+  unnest_tokens(word, post_title)
+```
+
+I remove stopwords using the tidytext package's stopword list. Stopwords are common words like "a" and "the" that are very common and not meaningful. 
+
+```{r stop words}
+
+# get stop words list
+data("stop_words")
+
+text_all <- text_month %>% 
+  anti_join(stop_words)
+
+text_year<- text_year %>% 
+  anti_join(stop_words)
+
+text_month <- text_month %>% 
+  anti_join(stop_words)
+
+# check for common words
+
+text_all %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
+
+text_year %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
+
+text_month %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
+
+```
+
+There are a few words in the text data frames that are generic science words, but are not in the stopword list. These include "study", "found", "suggests", and "research". There are also numbers that without context are not meaningful. These words and numbers will be filtered out.
+
+```{r custom stop words}
+
+# make custom stopword lists
+
+stop_nums<- as.data.frame(as.character(1:10000))
+colnames(stop_nums)[1] <- "word"
+
+stop_science <- c("study", "found", "scientist", "scientists", "research", "researchers", "suggests", "finding")
+stop_science <- as.data.frame(stop_science)
+colnames(stop_science)[1] <- "word"
+
+# remove custom stopwords
+
+text_all_clean <- text_all %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
+
+text_year_clean <- text_year %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
+
+text_month_clean <- text_month %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
+
+
+# find most common words
+
+text_all_clean %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
+
+text_year_clean %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
+
+text_month_clean %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
+
+```
+
+all_clean has `r nrow(all_clean)` lines and `r ncol(all_clean)` columns. It is ready to be analyzed.
+
+year_clean has `r nrow(year_clean)` lines and `r ncol(year_clean)` columns. It is ready to be analyzed.
+
+month_clean has `r nrow(month_clean)` lines and `r ncol(month_clean)` columns. It is ready to be analyzed.
+
+text_all_clean has `r nrow(text_all_clean)` lines and `r ncol(text_all_clean)` columns. It is ready to be analyzed.
+
+text_year_clean has `r nrow(text_year_clean)` lines and `r ncol(text_year_clean)` columns. It is ready to be analyzed.
+
+text_month_clean has `r nrow(text_month_clean)` lines and `r ncol(text_month_clean)` columns. It is ready to be analyzed.
 
 # Get the data
 

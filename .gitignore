@@ -25,3 +25,7 @@ reddit-science-analysis.html
 all_clean.csv
 year_clean.csv
 month_clean.csv
+text_all_clean.csv
+text_year_clean.csv
+text_month_clean.csv
+

@@ -8,69 +8,87 @@ library(wordcloud) # Wordclouds
 
 # subset dataframes with title text, flair, domain
 
-text_month <- top_month[c("post_title")]
-text_year <- top_year[c("post_title")]
-text_all <- top_all[c("post_title")]
-
+text_all <- month_clean[c("post_title")]
+text_year <- year_clean[c("post_title")]
+text_month <- all_clean[c("post_title")]
 
 # restructure one token per row: unnest tokens
-tidy_month <-text_month %>% 
+text_all <- text_all %>% 
   unnest_tokens(word, post_title)
 
-tidy_year <- text_year %>% 
+text_year <- text_year %>% 
   unnest_tokens(word, post_title)
 
-tidy_all <- text_all %>% 
+text_month <-text_month %>% 
   unnest_tokens(word, post_title)
 
 # remove stop words
 
 data("stop_words")
 
-# customize stop words
-list_num <- as.character(1:3000)
-list_words <- c("study", "found", "scientist", "scientists", "research", "researchers", "suggests", "finding")
+text_all <- text_month %>% 
+  anti_join(stop_words)
 
-custom_stop_words <- bind_rows(tibble(word = list_num,
-                                      lexicon = c("custom")),
-                               stop_words)
+text_year<- text_year %>% 
+  anti_join(stop_words)
 
-custom_stop_words <- bind_rows(tibble(word = list_words,
-                                      lexicon = c("custom")),
-                               custom_stop_words)
+text_month <- text_month %>% 
+  anti_join(stop_words)
 
-custom_stop_words <- as.data.frame(custom_stop_words)
+# check word frequencies for each period
 
+text_all %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
 
-tidy_month <- tidy_month %>% 
-  anti_join(custom_stop_words)
+text_year %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
 
+text_month %>% 
+  count(word, sort = TRUE) %>% 
+  head(20)
 
-tidy_year <- tidy_year %>% 
-  anti_join(custom_stop_words)
+# make custom stopword lists
 
-tidy_all <- tidy_all %>% 
-  anti_join(custom_stop_words)
+stop_nums<- as.data.frame(as.character(1:10000))
+colnames(stop_nums)[1] <- "word"
+
+stop_science <- c("study", "found", "scientist", "scientists", "research", "researchers", "suggests", "finding")
+stop_science <- as.data.frame(stop_science)
+colnames(stop_science)[1] <- "word"
+
+text_all_clean <- text_all %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
+
+text_year_clean <- text_year %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
+
+text_month_clean <- text_month %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
+
 
 # find most common words
 
-tidy_month %>% 
+text_all_clean %>% 
   count(word, sort = TRUE) %>% 
-  head()
+  head(20)
 
-tidy_year %>% 
+text_year_clean %>% 
   count(word, sort = TRUE) %>% 
-  head()
+  head(20)
 
-tidy_all %>% 
+text_month_clean %>% 
   count(word, sort = TRUE) %>% 
-  head()
+  head(20)
 
 # Export to csv
-
-write.csv(tidy_all, "~/Documents/Projects/reddit-science-analysis-2/tidy_all.csv")
-write.csv(tidy_year, "~/Documents/Projects/reddit-science-analysis-2/tidy_year.csv")
-write.csv(tidy_month, "~/Documents/Projects/reddit-science-analysis-2/tidy_month.csv")
+write.csv(text_all_clean, "~/Documents/Projects/reddit-science/text_all_clean.csv")
+write.csv(text_year_clean, "~/Documents/Projects/reddit-science/text_year_clean.csv")
+write.csv(text_month_clean, "~/Documents/Projects/reddit-science/text_month_clean.csv")
 
 # calculate word frequencies
 
