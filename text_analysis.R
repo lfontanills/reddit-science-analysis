@@ -4,7 +4,7 @@ library(skimr) # skim data frames
 library(urltools) # wrangle urls
 library(tidytext) # NLP toolkit
 library(textdata) # Sentiment analysis
-library(wordcloud) # Wordclouds
+library(wordcloud2) # Wordclouds
 
 # calculate word frequencies
 

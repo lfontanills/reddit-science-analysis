@@ -7,7 +7,7 @@ library(skimr) # skim data frames
 library(urltools) # wrangle urls
 library(tidytext) # NLP toolkit
 library(textdata) # Sentiment analysis
-library(wordcloud) # Wordclouds
+library(wordcloud2) # Wordclouds
 
 # create view data frame with top 100 posts from all time
 top_all <- read_csv("Top-Posts-All.csv")

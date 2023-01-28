@@ -4,7 +4,7 @@ library(skimr) # skim data frames
 library(urltools) # wrangle urls
 library(tidytext) # NLP toolkit
 library(textdata) # Sentiment analysis
-library(wordcloud) # Wordclouds
+library(wordcloud2) # Wordclouds
 
 # skim numerical variables
 skim(all_clean)
@@ -106,10 +106,7 @@ by_flair_all
 
 # graph number of posts by flair
 
-coul <- brewer.pal(4, "BuPu")
-coul <- colorRampPalette(coul)(25)
-
-by_flair_month %>% 
+top_month %>% 
   ggplot(aes(x = count_id, y=reorder(flair, count_id), fill=flair)) +
   geom_col(show.legend=FALSE) +
   gghighlight(count_id > 10) +
