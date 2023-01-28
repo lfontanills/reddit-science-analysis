@@ -32,9 +32,9 @@ library(gghighlight) # Adding to graphs
 
 # About
 
-I spend a lot of time on reddit, and a few months ago I noticed that one subreddit I frequent, [r/science](reddit.com/r/science), had more and more posts about pop-psychology getting tons of upvotes. Reddit is a social media site, and scientific journals are notoriously hard to access, so I expect a gap between the types of science content between them. Still, I decided to test my gut feeling that the subreddit's content was changing.
+A few months ago I noticed that one subreddit I frequent, [r/science](reddit.com/r/science), had more and more posts about pop-psychology getting tons of upvotes. Reddit is a social media site, and scientific journals are notoriously hard to access, so I expect a gap between the types of science content between them. Still, I decided to test my gut feeling that the subreddit's content was changing.
 
-I want to see what kinds of posts made it to the top of r/science: the posts that have the most upvotes, and therefore the posts that the most people liked and engaged with. What topics interest the average r/science user the most? 
+In this project I analyze the top posts of r/science, and investigate which topics interest r/science users the most. I also look at where posts come from, and whether any source websites are very common. Finally, I analyze the post titles through sentiment analysis and wordclouds, since titles are what users see first before deciding to engage with a post. 
 
 # Scraping Reddit with PRAW
 
