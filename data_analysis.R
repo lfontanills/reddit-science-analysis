@@ -1,4 +1,10 @@
-# get summary
+library(tidyverse) # data processing and analysis
+library(lubridate) # wrangle dates
+library(skimr) # skim data frames
+library(urltools) # wrangle urls
+library(tidytext) # NLP toolkit
+library(textdata) # Sentiment analysis
+library(wordcloud) # Wordclouds
 
 # skim numerical variables
 skim(top_month)
