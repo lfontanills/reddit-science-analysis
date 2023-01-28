@@ -168,8 +168,9 @@ frontiers_titles <-frontiers_titles %>%
 
 # remove stop words
 frontiers_clean <- frontiers_titles %>% 
-  anti_join(stop_nums) %>% 
-  anti_join(stop_science)
+  anti_join(stop_words, by = "word") %>% 
+  anti_join(stop_nums, by = "word") %>% 
+  anti_join(stop_science, by = "word")
 
 frontiers_clean %>% 
   count(word, sort = TRUE)
@@ -183,37 +184,5 @@ wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
 
 img_frontiers <- wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
 img_frontiers
-
-# see frequency of top reddit words in journal blogs
-
-frequency_compare %>% 
-  filter (word != "NA") %>% 
-  filter(category == "frontiers") %>% 
-  arrange(desc(reddit)) %>% 
-  print(n=20)
-
-# correlation tests
-
-cor.test(data = frequency_compare[frequency_compare$category == "frontiers",],
-         ~ proportion + `reddit`)
-
-# plot frequencies
-
-ggplot(frequency_compare, aes(x = proportion, y = `reddit`, 
-                              color = abs(`reddit` - proportion))) +
-  geom_abline(color = "gray40", lty = 2) +
-  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
-  geom_text(aes(label = word), check_overlap = TRUE, vjust = 1.5) +
-  scale_x_log10() +
-  scale_y_log10() +
-  scale_color_gradient(limits = c(0, 0.001), 
-                       low = "darkslategray4", high = "gray75") +
-  facet_wrap(~category, ncol = 2) +
-  theme(legend.position="none") +
-  labs(y = "Reddit", x = NULL)
-
-# export to csv
-
-write.csv(tidy_frontiers, file = "~/Documents/Projects/reddit-science-analysis/frontiers_clean.csv")
 
 

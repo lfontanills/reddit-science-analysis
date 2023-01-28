@@ -301,7 +301,7 @@ I created individual data frames for the top 100 posts of all time, the last yea
 I also created data frames containing just the post titles for each time period.
 
 I did not combine these data frames because they each represent a different timescale.
-```{r}
+```{r read data }
 # Whole dataset
 all_clean <- read.csv("~/Documents/Projects/reddit-science/all_clean.csv")
 year_clean <- read.csv("~/Documents/Projects/reddit-science/year_clean.csv")
@@ -378,7 +378,7 @@ month_clean %>%
 
 I investigated whether post rank scaled with upvote ratios. There are a few posts with very low upvote ratios (less than 75%), even though they also have very high scores. This indicates high engagement of users with both positive and negative opinions about the post. Effectively all of these posts are about contentious or divisive issues, and many are US-centric. Based on this finding I decided to focus my analysis on post topics and sources.
 
-```{r}
+```{r post by upvote ratio}
 # find post with very low upvote ratio
 # all time
 top_all %>% 
@@ -405,7 +405,7 @@ top_month %>%
 
 Three topics dominate the top-post lists: Psychology, Health, and Social Science. Together, these make up 51% of the top posts of all time (59% top month, 56% top year). 
 
-```{r}
+```{r find topic frequency}
 # all-time
 by_flair_all <- top_all %>% 
   group_by(flair) %>% 
@@ -464,7 +464,7 @@ by_flair_month
 
 The posts come from 60+ source websites (identified by domain name, e.g. academictimes.com). For the all-time list, no source has more than 5 posts associated with it. However, in the past-year list, 14 unique posts come from psypost.org. In the past-month list, 17 posts come from psypost.org. This indicates a recent increase in the popularity of posts from this psypost.org in particular.
 
-```{r}
+```{r find source frequency}
 # all-time
 by_domain_all <- top_all %>% 
   group_by(domain) %>% 
@@ -526,7 +526,7 @@ by_domain_month
 
 I created wordclouds to show the most frequent words in the titles of the top posts of all time. The word "people" appeared 12 times, "children" appeared 8 times, "sex" appeared 8 times, "life" appeared 7 times, and "U.S." appeared 6 times.
 
-```{r}
+```{r wordcloud all time}
 
 all_words <- text_all_clean %>% count(word, sort=TRUE)
 wordcloud2(all_words, size = 1.6)
@@ -535,7 +535,7 @@ wordcloud2(all_words, size = 1.6)
 
 
 The past-year word list represents more recent trends on the subreddit. The word "black" appeared 8 times, "woman" appeared 8 times, and "lung" appeared 7 times.
-```{r}
+```{r wordcloud past year}
 
 year_words <- text_year_clean %>% count(word, sort=TRUE)
 wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
@@ -544,7 +544,7 @@ wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
 
 The past-year month list resembles the past-year list.
 
-```{r}
+```{r wordcloud past month}
 
 month_words <- text_month_clean %>% count(word, sort=TRUE)
 wordcloud2(year_words, size = 1.6, color = (c("purple","blue")))
@@ -555,11 +555,12 @@ wordcloud2(year_words, size = 1.6, color = (c("purple","blue")))
 
 The words in r/science top posts titles are very weakly correlated with the words from the homepages of a popular science source, [Frontiers](https://blog.frontiersin.org/). I chose Frontiers because  it is an open-source journal with a webpage that posts article summaries and science news, much like r/science does. There are some similarities between this wordcloud and the all-time wordcloud, but some of the more frequently-used words in the Reddit wordcloud are missing from the Frontiers wordcloud (e.g. "sex", "life", and "U.S.". Furthermore, no one word appears as often as the top words in Reddit titles: "DNA" appears 6 times, and "science" appears 4 times.
 
-```{r warning=FALSE, include=FALSE}
-frontiers_clean <- read_csv("~/Documents/Projects/reddit-science-analysis/frontiers_clean.csv", show_col_types = FALSE)
+```{r compare frontiers, warning=FALSE, include=FALSE}
 
-```
-```{r}
+# cleaned same as reddit titles - data_analysis.R
+
+frontiers_clean <- read_csv("~/Documents/Projects/reddit-science/frontiers_clean.csv", show_col_types = FALSE)
+
 # word cloud
 frontiers_words <- frontiers_clean %>% count(word, sort=TRUE)
 wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
@@ -569,7 +570,7 @@ wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
 
 I used the NRC Word-Emotion Association Lexicon (C) to conduct sentiment analysis on post titles. Posts contain more positive words than negative words. Other common emotions in post titles are "trust", "anticipation", and "fear". Sentiment analysis showed similar results for all 3 time periods.
 
-```{r}
+```{r sentiment analysis}
 # sentiment analysis
 
 get_sentiments("nrc")
