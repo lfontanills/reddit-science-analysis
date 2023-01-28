@@ -2,7 +2,6 @@
 library(tidyverse)
 library(lubridate)
 library(skimr)
-library(ggplot2)
 library(urltools) #package wrangles urls
 
 # create view data frame with top 100 posts from all time
