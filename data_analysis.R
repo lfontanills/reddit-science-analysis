@@ -30,50 +30,50 @@ shapiro.test(all_clean$upvote_ratio)
 
 # comments
 
-top_posts_2 %>% 
+all_clean %>% 
   ggplot(aes(x=all_rank, y = num_comments)) +
   geom_point() +
   geom_smooth()
 
-top_year %>% 
+year_clean %>% 
   ggplot(aes(x=year_rank, y = num_comments)) +
   geom_point() +
   geom_smooth()
 
-top_month %>% 
+month_clean %>% 
   ggplot(aes(x=month_rank, y = num_comments)) +
   geom_point() +
   geom_smooth()
 
 # score
-top_all %>% 
+all_clean %>% 
   ggplot(aes(x=all_rank, y = score)) +
   geom_point() +
   geom_smooth()
 
-top_year %>% 
+year_clean %>% 
   ggplot(aes(x=year_rank, y = score)) +
   geom_point() +
   geom_smooth()
 
-top_month %>% 
+month_clean %>% 
   ggplot(aes(x=month_rank, y = score)) +
   geom_point() +
   geom_smooth()
 
 # upvote ratio
 
-top_all %>% 
+all_clean %>% 
   ggplot(aes(x=all_rank, y = upvote_ratio)) +
   geom_point() +
   geom_smooth()
 
-top_year %>% 
+year_clean %>% 
   ggplot(aes(x=year_rank, y = upvote_ratio)) +
   geom_point() +
   geom_smooth()
 
-top_month %>% 
+month_clean %>% 
   ggplot(aes(x=month_rank, y = upvote_ratio)) +
   geom_point() +
   geom_smooth()
@@ -81,33 +81,35 @@ top_month %>%
 # explore relationship between topic and score
 
 # Group by topic flair
-by_flair_month <- top_month %>% 
-  group_by(flair) %>% 
-  summarize(count_id=n_distinct(id)) %>% 
-  arrange(desc(count_id))
-by_flair_month
-
-by_flair_year <- top_year %>% 
-  group_by(flair) %>% 
-  summarize(count_id=n_distinct(id)) %>% 
-  arrange(desc(count_id))
-by_flair_year
-
-by_flair_all <- top_all %>% 
+by_flair_all <- all_clean %>% 
   group_by(flair) %>% 
   summarize(count_id=n_distinct(id)) %>% 
   arrange(desc(count_id))
 by_flair_all
 
-# What % of top posts belong to the categories health, psych, social sciences?
+by_flair_year <- year_clean %>% 
+  group_by(flair) %>% 
+  summarize(count_id=n_distinct(id)) %>% 
+  arrange(desc(count_id))
+by_flair_year
 
-29+17+13 # month
-20+18+18# year
+
+by_flair_month <- month_clean %>% 
+  group_by(flair) %>% 
+  summarize(count_id=n_distinct(id)) %>% 
+  arrange(desc(count_id))
+by_flair_month
+
+# What % of top posts belong to the categories health, psych, social sciences?
 20+16+15 # all
+20+18+18# year
+29+17+13 # month
+
+
 
 # graph number of posts by flair
 
-top_month %>% 
+by_flair_all %>% 
   ggplot(aes(x = count_id, y=reorder(flair, count_id), fill=flair)) +
   geom_col(show.legend=FALSE) +
   gghighlight(count_id > 10) +
@@ -147,15 +149,15 @@ by_flair_all %>%
 
 # Group by domain name
 
-by_domain_month <- top_month %>% 
+by_domain_month <- month_clean %>% 
   group_by(domain) %>% 
   summarize(count_id=n_distinct(id))
 
-by_domain_year <- top_year %>% 
+by_domain_year <- year_clean %>% 
   group_by(domain) %>% 
   summarize(count_id=n_distinct(id))
 
-by_domain_all <- top_all %>% 
+by_domain_all <- all_clean %>% 
   group_by(domain) %>% 
   summarize(count_id=n_distinct(id))
 
