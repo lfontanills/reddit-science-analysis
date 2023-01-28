@@ -5,6 +5,7 @@ library(urltools) # wrangle urls
 library(tidytext) # NLP toolkit
 library(textdata) # Sentiment analysis
 library(wordcloud2) # Wordclouds
+library(gghighlight) # Adding to graphs
 
 # calculate word frequencies
 

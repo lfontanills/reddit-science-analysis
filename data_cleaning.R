@@ -5,6 +5,7 @@ library(urltools) # wrangle urls
 library(tidytext) # NLP toolkit
 library(textdata) # Sentiment analysis
 library(wordcloud2) # Wordclouds
+library(gghighlight) # Adding to graphs
 
 # create view data frame with top 100 posts from all time
 top_all <- read_csv("Top-Posts-All.csv")
