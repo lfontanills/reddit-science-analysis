@@ -2,56 +2,46 @@
 title: "Analyzing post topics and titles on reddit.com/r/science"
 author: "Laura Fontanills"
 date: "`r format(Sys.time(), '%d %B %Y')`"
-# !!! You need to provide a logo image here !!! Or just delete the field for no logo
-# logo: "logo_gallery.png"
 theme: readable
 output:
   html_document:
     keep_md: yes
     toc: TRUE
     toc_float: TRUE
-    toc_collapsed: TRUE
+    toc_depth: 2
+    toc_collapse: FALSE
     number_sections: FALSE
-    code_folding: "hide"
+    code_folding: "show"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
 
-```{r load packages, include=FALSE}
-library(tidyverse) # data processing and analysis
-library(lubridate) # wrangle dates
-library(skimr) # skim data frames
-library(urltools) # wrangle urls
-library(tidytext) # NLP toolkit
-library(textdata) # Sentiment analysis
-library(wordcloud2) # Wordclouds
-library(gghighlight) # Adding to graphs
-```
+# Introduction
 
-# About
+A few months ago I noticed that one subreddit I frequent, [r/science](reddit.com/r/science), had a growing proportion of pop-psychology posts getting many upvotes. Reddit is a social media site, and scientific journals are notoriously hard to access, so I expected a gap between the types of science content they feature. Still, I decided to test my gut feeling that the subreddit's content was changing.
 
-A few months ago I noticed that one subreddit I frequent, [r/science](reddit.com/r/science), had more and more posts about pop-psychology getting tons of upvotes. Reddit is a social media site, and scientific journals are notoriously hard to access, so I expect a gap between the types of science content between them. Still, I decided to test my gut feeling that the subreddit's content was changing.
-
-In this project I analyze the top posts of r/science, and investigate which topics interest r/science users the most. I also look at where posts come from, and whether any source websites are very common. Finally, I analyze the post titles through sentiment analysis and wordclouds, since titles are what users see first before deciding to engage with a post. 
+In this project I analyzed the top posts of r/science, and investigated which topics interest r/science users the most. I also analyzed post titles through sentiment analysis and word clouds, since titles are what users first see when engaging with content.
 
 # Scraping Reddit with PRAW
 
-I used a python script to scrape r/science top 100 posts over three time periods: the past month, the past year, and all-time. Within these time periods I obtained data for 9 different variables:
+I used a Python script to scrape r/science top 100 posts over three time periods: the past month, the past year, and all-time. Within these time periods I obtained data for 9 different variables:
+
 * `...1` ranks the post from 0-99 (0 being the highest rank).
 * `id` is a unique string of letters and numbers that identify each post.
 * `created_unix_utc` is the time the post was created (as a unix number).
-* `post_url` is the url for the website the post links to. This can be from an online news outlet, journal, etc.. Each post has a unique url.
+* `post_url` is the url for the website the post links to. This can be from an online news outlet, journal, etc.
 * `post_title` is the title of the post.
 * `flair` is a tag attached to each post by a moderator that places that post in a category. It represents the post's topic.
 * `score` is the number of times a post was upvoted (each user can upvote a post once).
 * `num_comments` is the number of unique comments on a post.
-* `upvote_ratio` is the ratio of upvotes (indivading user approval) to downvotes (indicating user disapproval).
+* `upvote_ratio` is the ratio of upvotes (indicating user approval) to downvotes (indicating user disapproval). 
 
-The script won't run here; to run this code yourself, you'll need to follow the instructions [this guide](https://praw.readthedocs.io/en/stable/) and use your own credentials.
+The script won't run here; to run this code yourself, you'll need to follow the instructions in [this guide](https://praw.readthedocs.io/en/stable/) using your own credentials.
 
 ```{python scraper.py, eval=FALSE, include=FALSE}
+
 # import packages
 import praw
 import pandas
@@ -112,31 +102,47 @@ top_posts_all.to_csv("Top-Posts-All.csv")
 # repeat for past year, past month
 ```
 
+# Data Cleaning
 
-# Data cleaning
+I conducted all cleaning, analysis, and visualization in R.
+```{r load packages}
+library(tidyverse) # data processing and analysis
+library(lubridate) # wrangle dates
+library(skimr) # skim data frames
+library(urltools) # wrangle urls
+library(tidytext) # NLP toolkit
+library(textdata) # Sentiment analysis
+library(wordcloud2) # Word clouds
+library(gghighlight) # Adding highlight to graphs
+```
 
-```{r read raw data frames, show_col_types = FALSE}
-# create data frame with top 100 posts from the last month
-top_month <- read_csv("Top-Posts-Month.csv")
+## Get the Raw Data {.tabset}
 
-# create data frame with top 100 posts from the last year
-top_year <- read_csv("Top-Posts-Year.csv")
-
+### All time
+```{r check all posts unique}
 # create data frame with top 100 posts from all time
 top_all <- read_csv("Top-Posts-All.csv")
+summary(top_all)
 ```
 
-I confirm that all posts are unique by checking the number of distinct post IDs. TRUE indicates that all rows are unique.
-
-```{r check all posts unique}
-
-n_distinct(top_all$id) == nrow(top_all)
-n_distinct(top_year$id) == nrow(top_year)
-n_distinct(top_month$id) == nrow(top_month)
+### Past year
+```{r check year posts unique}
+# create data frame with top 100 posts from last year
+top_year <- read_csv("Top-Posts-Year.csv")
+summary(top_all)
 ```
 
-I change the name of the first column to represent post rank, and add 1 to all rankings so that posts are ranked from 1 to 100.
+### Past month
+```{r check month posts unique}
+# create data frame with top 100 posts from last year
+top_month <- read_csv("Top-Posts-Month.csv")
+summary(top_month)
+```
+# {-}
 
+## Data Transformation
+
+Column 1 represents post rank. I changed the column name and added 1 to all rankings (so that posts would be ranked from 1 to 100).
 ```{r edit column names - rank}
 
 # change column 1 name from ...1 to rank
@@ -145,13 +151,12 @@ colnames(top_year)[1] <- "year_rank"
 colnames(top_month)[1] <- "month_rank"
 
 # add 1 to all the rankings for clarity
-top_all$all_rank <- top_all$all_rank + 1
-top_year$year_rank <- top_year$year_rank + 1
-top_month$month_rank <- top_month$month_rank + 1
+top_all$all_rank <- as.numeric(top_all$all_rank) + 1
+top_year$year_rank <- as.numeric(top_year$year_rank) + 1
+top_month$month_rank <- as.numeric(top_month$month_rank) + 1
 ```
 
-I convert the created_unix field from a number to a datetime, and save this as `created_utc`. This shows the time each post was made in UTC.
-
+I converted the `created_unix` field from a number to a datetime, and save this as `created_utc`. This represents the time each post was made in UTC.
 ```{r create unix_utc datetime}
 
 top_all$created_utc <- as_datetime(top_all$created_unix_utc)
@@ -159,8 +164,7 @@ top_year$created_utc <- as_datetime(top_year$created_unix_utc)
 top_month$created_utc <- as_datetime(top_month$created_unix_utc)
 ```
 
-I isolate the domain name from each post url, and save this as post_url. This shows the source website of each post -- sources include news outlets, science magazines, journals, blogs, etc..
-
+I isolated the domain name from each url, and saved this as `post_url`. The domain is the source website for each post. Sources include news outlets, science magazines, journals, blogs, etc.
 ```{r create post_url chr}
 
 top_all$domain <- domain(top_all$post_url)
@@ -168,76 +172,41 @@ top_year$domain <- domain(top_year$post_url)
 top_month$domain <- domain(top_month$post_url)
 ```
 
-Let's save the cleaned and transformed data to fresh data frames.
-
+I saved the cleaned and transformed data to fresh data frames. I also created data frames containing just the post titles.
 ```{r create cleaned df}
+# create clean df - all data
 all_clean <- top_all
 year_clean <- top_year
 month_clean <- top_month
-```
 
-I'll also make data frames containing just the post titles.
-
-```{r create title-only df}
+# create text df - titles only
 text_month <- all_clean[c("post_title")]
 text_year <- year_clean[c("post_title")]
 text_all <- month_clean[c("post_title")]
 ```
 
-## Text cleaning
 
-Later on, I will analyze word frequencies in post titles. To do this I need to restructure the data frame so that each word is in its own column (each row still represents one post).
+## Text Cleaning
 
+Later on, I analyzed word frequencies in post titles. To do this I needed to restructure the data frame so that each title word has its own column (each row still represents one post).
 ```{r unnest tokens titles}
 
 # restructure one token per row: unnest tokens
+text_all <- text_all %>% 
+  unnest_tokens(word, post_title)
+
 text_month <-text_month %>% 
   unnest_tokens(word, post_title)
 
 text_year <- text_year %>% 
   unnest_tokens(word, post_title)
-
-text_all <- text_all %>% 
-  unnest_tokens(word, post_title)
 ```
 
-I remove stopwords using the tidytext package's stopword list. Stopwords are common words like "a" and "the" that are very common and not meaningful. 
-
+I removed stopwords using the tidytext package's stopword list. Stopwords are common words like "a" and "the" that are very common and not meaningful. There were a few words generic science words in the data sets that I wanted to filter out, such as "study", "found", "suggests", and "research".
 ```{r stop words}
 
 # get stop words list
 data("stop_words")
-
-text_all <- text_month %>% 
-  anti_join(stop_words)
-
-text_year<- text_year %>% 
-  anti_join(stop_words)
-
-text_month <- text_month %>% 
-  anti_join(stop_words)
-
-# check for common words
-
-text_all %>% 
-  count(word, sort = TRUE) %>% 
-  head(20)
-
-text_year %>% 
-  count(word, sort = TRUE) %>% 
-  head(20)
-
-text_month %>% 
-  count(word, sort = TRUE) %>% 
-  head(20)
-
-```
-
-There are a few words in the text data frames that are generic science words, but are not in the stopword list. These include "study", "found", "suggests", and "research". There are also numbers that without context are not meaningful. These words and numbers will be filtered out.
-
-```{r custom stop words}
-
-# make custom stopword lists
 
 stop_nums<- as.data.frame(as.character(1:10000))
 colnames(stop_nums)[1] <- "word"
@@ -245,94 +214,112 @@ colnames(stop_nums)[1] <- "word"
 stop_science <- c("study", "found", "scientist", "scientists", "research", "researchers", "suggests", "finding")
 stop_science <- as.data.frame(stop_science)
 colnames(stop_science)[1] <- "word"
-
-# remove custom stopwords
-
-text_all_clean <- text_all %>% 
-  anti_join(stop_nums) %>% 
-  anti_join(stop_science)
-
-text_year_clean <- text_year %>% 
-  anti_join(stop_nums) %>% 
-  anti_join(stop_science)
-
-text_month_clean <- text_month %>% 
-  anti_join(stop_nums) %>% 
-  anti_join(stop_science)
-
-
-# find most common words
-
-text_all_clean %>% 
-  count(word, sort = TRUE) %>% 
-  head(20)
-
-text_year_clean %>% 
-  count(word, sort = TRUE) %>% 
-  head(20)
-
-text_month_clean %>% 
-  count(word, sort = TRUE) %>% 
-  head(20)
-
 ```
 
-all_clean has `r nrow(all_clean)` lines and `r ncol(all_clean)` columns. It is ready to be analyzed.
 
-year_clean has `r nrow(year_clean)` lines and `r ncol(year_clean)` columns. It is ready to be analyzed.
+## Word Frequencies Lists {.tabset}
 
-month_clean has `r nrow(month_clean)` lines and `r ncol(month_clean)` columns. It is ready to be analyzed.
+I created lists of the top words for each time period.
 
-text_all_clean has `r nrow(text_all_clean)` lines and `r ncol(text_all_clean)` columns. It is ready to be analyzed.
+### All time
 
-text_year_clean has `r nrow(text_year_clean)` lines and `r ncol(text_year_clean)` columns. It is ready to be analyzed.
+```{r word frequencies all time}
 
-text_month_clean has `r nrow(text_month_clean)` lines and `r ncol(text_month_clean)` columns. It is ready to be analyzed.
+# filter stopwords
+text_all_clean <- text_all %>% 
+  anti_join(stop_words) %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
 
-# Get the data
+# show 10 most frequent words
+text_all_clean %>% 
+  count(word, sort = TRUE)%>% 
+  head()
+```
+
+### Past year
+``` {r word frequencies year}
+
+# filter stopwords
+text_year_clean <- text_year %>% 
+  anti_join(stop_words) %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
+
+# show 10 most frequent words
+text_year_clean %>% 
+  count(word, sort = TRUE) %>% 
+  head()
+```
+
+### Past month
+```{r word frequencies month}
+
+# filter stopwords
+text_month_clean <- text_month %>% 
+  anti_join(stop_words) %>% 
+  anti_join(stop_nums) %>% 
+  anti_join(stop_science)
+
+# show 10 most frequent words
+text_month_clean %>% 
+  count(word, sort = TRUE) %>% 
+  head()
+```
+## {-}
+
+# Data Exploration
+
+## Get the Clean Data {.tabset}
 
 I created individual data frames for the top 100 posts of all time, the last year, and the last month.
 
 I also created data frames containing just the post titles for each time period.
 
 I did not combine these data frames because they each represent a different timescale.
-```{r read data }
+
+### All time
+
+The oldest post on the all time list is from 2015, and the median year for posts is from 2020. The subreddit has been growing over time.
+```{r read data all}
 # Whole dataset
 all_clean <- read.csv("~/Documents/Projects/reddit-science/all_clean.csv")
-year_clean <- read.csv("~/Documents/Projects/reddit-science/year_clean.csv")
-month_clean <- read.csv("~/Documents/Projects/reddit-science/month_clean.csv")
 
 # Post titles only
 text_all_clean <- read.csv("~/Documents/Projects/reddit-science/text_all_clean.csv")
+
+summary(top_all)
+```
+
+### Past year
+```{r read data year}
+# Whole dataset
 text_year_clean <- read.csv("~/Documents/Projects/reddit-science/text_year_clean.csv")
+
+# Post titles only
+year_clean <- read.csv("~/Documents/Projects/reddit-science/year_clean.csv")
+
+summary(top_year)
+```
+
+### Past month
+```{r read data month}
+# Whole dataset
+month_clean <- read.csv("~/Documents/Projects/reddit-science/month_clean.csv")
+
+# Post titles only
 text_month_clean <- read.csv("~/Documents/Projects/reddit-science/text_month_clean.csv")
 
-```
-
-The top_all file has `r nrow(top_all)` lines and `r ncol(top_all)` columns. It is ready to be analyzed.
-
-The top_year file has `r nrow(top_year)` lines and `r ncol(top_year)` columns. It is ready to be analyzed.
-
-The top_month file has `r nrow(top_month)` lines and `r ncol(top_month)` columns. It is ready to be analyzed.
-
-The text_all_clean file contains `r nrow(text_all_clean)` words. The text_year_clean file contanils `r nrow(text_year_clean)` words. The text_month_clean file contanils `r nrow(text_month_clean)` words.
-
-# Analysis and Visualizations
-
-## Exploring the data set
-
-A look at the data summary for top_all shows that the oldest post is from 2015, and the median post is from 2020. The subreddit has been growing over time.
-
-```{r get summary}
-summary(top_all)
-summary(top_year)
 summary(top_month)
 ```
+## {-}
 
-I confirmed that post rank roughly scaled with post score -- the higher a post is ranked, the more people upvoted it, representing engagement with and interest in the post.
+## Understanding Post Scores {.tabset}
 
-```{r post rank by score}
+Reddit uses a complex sorting algorithm to rank posts. I confirmed that post rank roughly scaled with post score -- the higher a post is ranked, the more people upvoted it, representing engagement with and interest in the post. A notable outlier is present in the past-month graph. 
 
+### All time
+```{r post rank by score -all }
 all_clean %>% 
   ggplot(aes(x=all_rank, y = score)) +
   geom_point() +
@@ -344,6 +331,11 @@ all_clean %>%
     y = "Score"
   ) +
   theme_minimal()
+
+```
+
+### Past year
+```{r post rank by score - year}
 
 year_clean %>% 
   ggplot(aes(x=year_rank, y = score)) +
@@ -357,6 +349,12 @@ year_clean %>%
   ) +
   theme_minimal()
 
+```
+
+### Past month
+The no.6 ranked post has score 71142, which is the second highest score for this time period. The no.6 post also has an upvote ratio of 0.78, which is lower than the mean upvote ratio 0.91. Notably, the no.2 ranked post also has a high score and low upvote ratio (64060, 0.75). These posts are about controversial Social Science topics.
+```{r post rank by score - month}
+
 month_clean %>% 
   ggplot(aes(x=month_rank, y = score)) +
   geom_point() +
@@ -369,36 +367,21 @@ month_clean %>%
   ) +
   theme_minimal()
 
+month_clean %>% 
+  filter(score == 71142 | score == 64060) %>% 
+  select(post_title, month_rank)
 ```
 
-I investigated whether post rank scaled with upvote ratios. There are a few posts with very low upvote ratios (less than 75%), even though they also have very high scores. This indicates high engagement of users with both positive and negative opinions about the post. Effectively all of these posts are about contentious or divisive issues, and many are US-centric. Based on this finding I decided to focus my analysis on post topics and sources.
+## {-}
 
-```{r post by upvote ratio}
-# find post with very low upvote ratio
-# all time
-top_all %>% 
-  filter(upvote_ratio < .75 ) %>% 
-  arrange(upvote_ratio) %>% 
-  select(c(post_title, flair, upvote_ratio, score, domain))
+# Analysis and Visualizations
 
-# past year
-top_year %>% 
-  filter(upvote_ratio < .75 ) %>% 
-  arrange(upvote_ratio) %>% 
-  select(c(post_title, flair, upvote_ratio, score, domain))
+## Finding 1: Relationship Between Post Topic and Score {.tabset}
 
-# past month
-top_month %>% 
-  filter(upvote_ratio < .75 ) %>% 
-  arrange(upvote_ratio) %>% 
-  select(c(post_title, flair, upvote_ratio, score, domain))
+Three topics dominate the top-post lists: Psychology, Health, and Social Science. 
 
-```
-
-
-## Finding 1: Relationship between topic and post score
-
-Three topics dominate the top-post lists: Psychology, Health, and Social Science. Together, these make up 51% of the top posts of all time (59% top month, 56% top year). 
+### All time
+Psychology, Health, and Social Science make up 51% of the top posts of all time
 
 ```{r find topic frequency}
 # all-time
@@ -417,6 +400,11 @@ by_flair_all <- top_all %>%
   ) +
   theme_minimal()
 by_flair_all
+```
+
+### Past year
+Psychology, Health, and Social Science make up 56% of the top posts of the past year.
+```{r topics past year}
 
 # past year
 by_flair_year <- top_year %>% 
@@ -435,7 +423,11 @@ by_flair_year <- top_year %>%
   ) +
   theme_minimal()
 by_flair_year
+```
 
+### Past month
+Psychology, Health, and Social Science make up 59% of the top posts of the past month
+```{r topics past month}
 # past month
 by_flair_month <- top_month %>% 
   group_by(flair) %>% 
@@ -455,11 +447,15 @@ by_flair_month <- top_month %>%
 by_flair_month
 ```
 
-## Finding 2: Relationship between sources and post score
+## Finding 2: Relationship Between Post Source and Score {.tabset}
 
-The posts come from 60+ source websites (identified by domain name, e.g. academictimes.com). For the all-time list, no source has more than 5 posts associated with it. However, in the past-year list, 14 unique posts come from psypost.org. In the past-month list, 17 posts come from psypost.org. This indicates a recent increase in the popularity of posts from this psypost.org in particular.
+R/science posts come from 60+ source websites (identified by domain name, e.g. academictimes.com).There has been an significant increase in the popularity of posts from psypost.com in the past year and past month. The all-time sources are more heterogeneous than the past-year and past-month sources.
 
-```{r find source frequency}
+### All time
+For the all-time list, no source had more than 5 posts associated with it. However, in the past-year list, 14 unique posts come from psypost.org. In the past-month list, 17 posts come from psypost.org. This indicates a recent increase in the popularity of posts from this psypost.org in particular.
+
+### All time
+```{r source frequency all}
 # all-time
 by_domain_all <- top_all %>% 
   group_by(domain) %>% 
@@ -477,7 +473,11 @@ by_domain_all <- top_all %>%
   ) +
   theme_minimal()
 by_domain_all
+```
 
+### Past year
+
+```{r source frequency year}
 # past year
 by_domain_year <- top_year %>% 
   group_by(domain) %>% 
@@ -496,7 +496,11 @@ by_domain_year <- top_year %>%
   ) +
   theme_minimal()
 by_domain_year
+```
 
+### Past month
+
+```{r source frequency month}
 # past month
 by_domain_month <- top_month %>% 
   group_by(domain) %>% 
@@ -516,52 +520,21 @@ by_domain_month <- top_month %>%
   theme_minimal()
 by_domain_month
 ```
+## {-}
 
-## Finding 3: Word frequency in post titles
+## Finding 3: Word Frequency in Titles
 
-I created wordclouds to show the most frequent words in the titles of the top posts of all time. The word "people" appeared 12 times, "children" appeared 8 times, "sex" appeared 8 times, "life" appeared 7 times, and "U.S." appeared 6 times.
+I created word clouds to show the most frequent words in the titles of the top posts of all time. Mouse over the terms to see the number of times each appeared.
 
+### All time
 ```{r wordcloud all time}
 
 all_words <- text_all_clean %>% count(word, sort=TRUE)
 wordcloud2(all_words, size = 1.6)
-```
-
-
-
-The past-year word list represents more recent trends on the subreddit. The word "black" appeared 8 times, "woman" appeared 8 times, and "lung" appeared 7 times.
-```{r wordcloud past year}
-
-year_words <- text_year_clean %>% count(word, sort=TRUE)
-wordcloud2(year_words, size = 1.6, color = (c("green","blue")))
 
 ```
 
-The past-year month list resembles the past-year list.
-
-```{r wordcloud past month}
-
-month_words <- text_month_clean %>% count(word, sort=TRUE)
-wordcloud2(year_words, size = 1.6, color = (c("purple","blue")))
-
-```
-
-## Finding 4: Comparing word frequency to another science source
-
-The words in r/science top posts titles are very weakly correlated with the words from the homepages of a popular science source, [Frontiers](https://blog.frontiersin.org/). I chose Frontiers because  it is an open-source journal with a webpage that posts article summaries and science news, much like r/science does. There are some similarities between this wordcloud and the all-time wordcloud, but some of the more frequently-used words in the Reddit wordcloud are missing from the Frontiers wordcloud (e.g. "sex", "life", and "U.S.". Furthermore, no one word appears as often as the top words in Reddit titles: "DNA" appears 6 times, and "science" appears 4 times.
-
-```{r compare frontiers, warning=FALSE, include=FALSE}
-
-# cleaned same as reddit titles - data_analysis.R
-
-frontiers_clean <- read_csv("~/Documents/Projects/reddit-science/frontiers_clean.csv", show_col_types = FALSE)
-
-# word cloud
-frontiers_words <- frontiers_clean %>% count(word, sort=TRUE)
-wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
-```
-
-## Finding 5: Sentiment analysis of titles
+## Finding 4: Sentiment Analysis of Titles
 
 I used the NRC Word-Emotion Association Lexicon (C) to conduct sentiment analysis on post titles. Posts contain more positive words than negative words. Other common emotions in post titles are "trust", "anticipation", and "fear". Sentiment analysis showed similar results for all 3 time periods.
 
@@ -571,12 +544,6 @@ I used the NRC Word-Emotion Association Lexicon (C) to conduct sentiment analysi
 get_sentiments("nrc")
 
 all_time_sentiment <- text_all_clean %>% 
-  inner_join(get_sentiments("nrc"), by = "word")
-
-year_sentiment <- text_year_clean %>% 
-  inner_join(get_sentiments("nrc"), by = "word")
-
-month_sentiment <- text_month_clean %>% 
   inner_join(get_sentiments("nrc"), by = "word")
 
 sentiment_all_plot <- all_time_sentiment %>% 
@@ -594,61 +561,30 @@ sentiment_all_plot <- all_time_sentiment %>%
   ) +
   theme_minimal()
 sentiment_all_plot
-
-sentiment_year_plot <- year_sentiment %>% 
-  group_by(sentiment) %>% 
-  summarize(num_words = n()) %>% 
-  arrange(desc(num_words)) %>% 
-  ggplot(aes(x = num_words, y=reorder(sentiment, num_words), fill=sentiment)) +
-  geom_col(show.legend=FALSE) +
-  gghighlight(num_words > 100) +
-  labs(
-    title = "Sentiment analysis of post titles",
-    subtitle = "Top 100 posts last year (2022)",
-    x = "Number of words",
-    y = "Sentiment"
-  ) +
-  theme_minimal()
-sentiment_year_plot
-
-sentiment_month_plot <- month_sentiment %>% 
-  group_by(sentiment) %>% 
-  summarize(num_words = n()) %>% 
-  arrange(desc(num_words)) %>% 
-  ggplot(aes(x = num_words, y=reorder(sentiment, num_words), fill=sentiment)) +
-  geom_col(show.legend=FALSE) +
-  gghighlight(num_words > 100) +
-  labs(
-    title = "Sentiment analysis of post titles",
-    subtitle = "Top 100 posts last month (December 2022)",
-    x = "Number of words",
-    y = "Sentiment"
-  ) +
-  theme_minimal()
-sentiment_month_plot
-
 ```
 
+## Finding 5: Comparing Title Word Frequency to Another Website
+The words in r/science top posts titles are very weakly correlated with the words from the homepages of a popular science source, [Frontiers](https://blog.frontiersin.org/). I chose Frontiers because  it is an open-source journal with a webpage that posts article summaries and science news, much like r/science does. There are some similarities between this word cloud and the all-time word cloud, but some of the more frequently-used words in the Reddit word cloud are missing from the Frontiers word cloud (e.g. "sex", "life", and "U.S.".
 
-# Conclusions
+```{r compare frontiers, warning=FALSE, include=FALSE}
 
-Overall, r/science most popular posts are pop-science, and favor psychology, social science, and health topics. Posts on r/science come from many sources, though within the past year psypost.org has become overrepresented on the site, and this trend continued through December 2022. These posts are highly upvoted and have high engagement. 
+# cleaned same as reddit titles - data_analysis.R
 
-The overall sentiment of posts on r/science is slightly positive. Some words appear very frequently in the post titles. The most frequent post title words are "everyday" words, not specific to science. By contrast, the title words of an open-source journal's blog include more scientific terms.
+frontiers_clean <- read_csv("~/Documents/Projects/reddit-science/frontiers_clean.csv", show_col_types = FALSE)
 
+# word cloud
+frontiers_words <- frontiers_clean %>% count(word, sort=TRUE)
+wordcloud2(frontiers_words, size = 1.6, color=(c("red","purple")))
+```
 
+# Conclusion
 
-## Citations
+Scientific discourse on a social media forum like r/science is quite different from that of scientific journals. This is understandable, given that journals are difficult to access for most people. Social media algorithms also elevate content that is controversial in nature. Websites that summarize science news get more engagement on r/science. Recently, a trend toward pop-sci and pop-psych content has emerged, and a disproportionate number of posts come from psypost.org. 
 
-NRC Word-Emotion Association Lexicon: Copyright (C) 2011 National Research Council Canada (NRC)
+# Citations
 
-Version: 0.92
-Publicly Released: 10 July 2011
-Created By: Dr. Saif M. Mohammad, Dr. Peter Turney
-Home Page: http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm
+This report makes use of the NRC Word-Emotion Association Lexicon (C), created by Dr. Saif M. Mohammad and Dr. Peter Turney(s) at the National Research Council Canada." 
 
-Readme Last Updated: August 2022
-Automatic translations from English to 108 languages was last updated: August 2022
+[Lexicon homepage](https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm)
 
-Contact: Dr. Saif M. Mohammad (Senior Research Scientist, National Research Council Canada)
-saif.mohammad@nrc-cnrc.gc.ca, uvgotsaif@gmail.com
+[Contact email](saif.mohammad@nrc-cnrc.gc.ca))
