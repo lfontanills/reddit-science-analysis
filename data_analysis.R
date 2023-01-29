@@ -12,6 +12,13 @@ skim(all_clean)
 skim(year_clean)
 skim(month_clean)
 
+summary(month_clean$upvote_ratio)
+summary(month_clean$score)
+top_month %>% 
+  filter (upvote_ratio < 75 & score > 60000) %>% 
+  select (month_rank, post_title, post_url)
+
+
 # confirm normal or non-normal distribution (p > 0.05 is normal)
 # all non-normal
 shapiro.test(month_clean$score)
