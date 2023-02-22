@@ -1,5 +1,8 @@
 # Reddit r/science post topic analysis
 
+## Report
+[Check out my complete report!](https://rpubs.com/lfontanills/reddit_science_report)
+
 ## Data source
 In December 2022, I scraped the top 100 posts (month, year, and all-time) from reddit.com/r/science
 
